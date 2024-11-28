@@ -1,0 +1,48 @@
+# clone the repository
+
+https://github.com/ch405maki/user_registration.git
+
+# after clone the repository, run the following command in terminal:
+
+cd user_registration
+
+# create a virtual environment
+
+python -m venv venv
+
+or 
+
+python3 -m venv venv
+
+source venv/bin/activate  # For macOS/Linux
+# or
+venv\Scripts\activate  # For Windows
+
+# Install the required packages
+
+pip install -r requirements.txt
+
+# Connect to the database and create the tables in the MySql WorkBench
+
+CREATE DATABASE plant_db;
+
+# Make sure to provide the following details in the settings.py file:
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'plant_db',
+        'USER': 'root',
+        'PASSWORD': '',
+        'HOST': 'localhost',
+        'PORT': '3306',
+    }
+}
+
+python manage.py migrate
+
+# Optional
+python manage.py createsuperuser
+
+python manage.py runserver
+

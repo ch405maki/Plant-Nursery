@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        darkest: '#2a3e30',
+                        mid: '#6e948a',
+                        light: '#97ada7',
+                        white: '#ffffff',
+                    },
+                },
+            },
+        };
+    </script>
+</head>
+<body>
+    <!-- First Navbar -->
+    <nav class="bg-white h-28 flex items-center justify-center">
+        <div class="flex items-center space-x-4">
+            <img src="{% static 'images/logo.png' %}" alt="Plant Nursery Logo" class="h-20 w-20 object-cover">
+            <span class="text-darkest text-5xl font-bold">Plant Nursery Blog</span>
+        </div>
+    </nav>
+
+    <!-- Second Navbar with Logo -->
+    <nav class="bg-light h-16 flex items-center px-10 space-x-8">
+        <!-- Navigation Links -->
+        <div class="flex space-x-8">
+            <a href="#" class="text-darkest text-xl font-bold hover:text-mid">Home</a>
+            <a href="#" class="text-darkest text-xl font-bold hover:text-mid">About</a>
+            <a href="#" class="text-darkest text-xl font-bold hover:text-mid">Contact</a>
+            <a href="#" class="text-darkest text-xl font-bold hover:text-mid">Stories</a>
+        </div>
+    </nav>
+</body>
+</html>

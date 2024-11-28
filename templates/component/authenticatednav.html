@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        darkest: '#2a3e30',
+                        mid: '#6e948a',
+                        light: '#97ada7',
+                        white: '#ffffff',
+                    },
+                },
+            },
+        };
+    </script>
+</head>
+<body>
+    <!-- First Navbar -->
+    <div class="bg-gray-100">
+        <div class="flex overflow-hidden bg-light">
+    
+            <!-- Sidebar -->
+            <div class="absolute bg-mid z-50 text-white w-[300px] min-h-screen overflow-y-auto transition-transform transform -translate-x-full ease-in-out duration-300"
+                id="sidebar">
+                <!-- Sidebar Content -->
+                <div class="pl-4">
+                    <div class="p-4 flex flex-col items-center">
+                        <img src="{% static 'images/logo.png' %}" alt="Plant Nursery Logo" class="h-20 w-20 object-cover">
+                    </div>    
+                    <ul class="p-4 space-y-2">
+                        <li class="animate-fade-in" style="animation-delay: 0.1s;">
+                            <a href="#" class="flex items-center p-2 text-white text-lg font-medium rounded-lg hover:bg-darkest  transition-colors duration-300 menu-item-hover">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                </svg>
+                                Plant Care Guides
+                            </a>
+                        </li>
+                        <li class="animate-fade-in" style="animation-delay: 0.2s;">
+                            <a href="#" class="flex items-center p-2 text-white text-lg font-medium  rounded-lg hover:bg-darkest  transition-colors duration-300 menu-item-hover">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                </svg>
+                                Gardening Tips
+                            </a>
+                        </li>
+                        <li class="animate-fade-in" style="animation-delay: 0.3s;">
+                            <a href="#" class="flex items-center p-2 text-white text-lg font-medium  rounded-lg hover:bg-darkest  transition-colors duration-300 menu-item-hover">
+                                <svg class="w-[27px] h-[27px] text-white mr-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.9" d="M10 6.025A7.5 7.5 0 1 0 17.975 14H10V6.025Z"/>
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.9" d="M13.5 3c-.169 0-.334.014-.5.025V11h7.975c.011-.166.025-.331.025-.5A7.5 7.5 0 0 0 13.5 3Z"/>
+                                  </svg>
+                                Design Inspirations
+                            </a>
+                        </li>
+                        <li class="animate-fade-in" style="animation-delay: 0.4s;">
+                            <a href="#" class="flex items-center p-2 text-white text-lg font-medium  rounded-lg hover:bg-darkest transition-colors duration-300 menu-item-hover">
+                                <svg class="w-[27px] h-[27px] mr-3 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.9" d="M9.529 9.988a2.502 2.502 0 1 1 5 .191A2.441 2.441 0 0 1 12 12.582V14m-.01 3.008H12M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                                  </svg>
+                                  
+                                Plant Q&A
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+    
+            <!-- Content -->
+            <div class="flex-1 flex flex-col overflow-hidden">
+                <!-- Navbar -->
+                <nav class="bg-white h-28 flex items-center justify-between px-4 shadow">
+                    <!-- Sidebar Toggle Button (left-aligned) -->
+                    <button class="text-gray-500 hover:text-gray-600 ml-[85px]"  id="open-sidebar">
+                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                    
+                    <!-- Centered Logo and Title -->
+                    <div class="flex items-center space-x-4 mx-auto">
+                        <img src="{% static 'images/logo.png' %}" alt="Plant Nursery Logo" class="h-20 w-20 object-cover">
+                        <span class="text-darkest text-5xl font-bold">Plant Nursery Blog</span>
+                    </div>
+                </nav>
+                
+                <!-- Second Navbar with Logo -->
+                <nav class="bg-light h-16 flex items-center px-[100px] justify-between">
+                    <!-- Navigation Links -->
+                    <div class="flex space-x-8">
+                        <a href="#" class="text-darkest text-xl font-bold hover:text-mid">Home</a>
+                        <a href="#" class="text-darkest text-xl font-bold hover:text-mid">About</a>
+                        <a href="#" class="text-darkest text-xl font-bold hover:text-mid">Contact</a>
+                        <a href="#" class="text-darkest text-xl font-bold hover:text-mid">Stories</a>
+                    </div>
+                    
+                    <!-- Profile Icon and Welcome Message -->
+                    <div class="flex items-center space-x-4">
+                        <!-- Profile Icon -->
+                        <div class="w-10 h-10 rounded-full bg-mid flex items-center justify-center text-white font-bold">
+                            <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 12c2.21 0 4-1.79 4-4S14.21 4 12 4 8 5.79 8 8s1.79 4 4 4zM4 20c0-2.21 4-4 8-4s8 1.79 8 4v1H4v-1z" />
+                            </svg>
+                        </div>
+                        <!-- Welcome Message -->
+                        <span class="text-darkest text-lg font-medium">Welcome, {{ user.username }}</span>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const openSidebarButton = document.getElementById('open-sidebar');
+    
+        // Open/Close Sidebar on Button Click
+        openSidebarButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            sidebar.classList.toggle('-translate-x-full');
+        });
+    
+        // Close the sidebar when clicking outside of it
+        document.addEventListener('click', (e) => {
+            if (!sidebar.contains(e.target) && !openSidebarButton.contains(e.target)) {
+                sidebar.classList.add('-translate-x-full');
+            }
+        });
+    </script>
+    </div>
+</div>
+</body>
+</html>
