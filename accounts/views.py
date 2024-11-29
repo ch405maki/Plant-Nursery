@@ -25,3 +25,6 @@ def landing_page(request):
 def dashboard(request):
     return render(request, 'accounts/dashboard.html')
 
+def plant_care_guides(request):
+    return render(request, 'plantCareGuides/index.html')
+
