@@ -33,6 +33,9 @@ class Story(models.Model):
 
     def __str__(self):
         return self.title
+    @property
+    def hearts_count(self):
+        return self.hearts.count()
     
 class Heart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="hearts")
@@ -44,3 +47,4 @@ class Heart(models.Model):
 
     def __str__(self):
         return f"{self.user.username} liked {self.story.title}"
+

@@ -89,7 +89,16 @@ def guide_detail(request, guide_id):
 
 @login_required
 def stories(request):
-    stories = Story.objects.annotate(total_hearts=Count('hearts'))
+    stories = Story.objects.all()
+
+    # Add `user_has_liked` attribute for each story
+    if request.user.is_authenticated:  # Ensure the user is logged in
+        for story in stories:
+            story.user_has_liked = story.hearts.filter(user=request.user).exists()
+    else:
+        for story in stories:
+            story.user_has_liked = False  # Not logged-in users cannot like
+
     return render(request, 'stories/index.html', {'stories': stories})
 
 def add_story(request):
@@ -102,14 +111,11 @@ def add_story(request):
     
 @login_required
 def toggle_heart(request, story_id):
-    if request.method == "POST":
-        story = get_object_or_404(Story, id=story_id)
-        heart, created = Heart.objects.get_or_create(user=request.user, story=story)
+    story = get_object_or_404(Story, id=story_id)
 
-        if not created:
-            heart.delete()
-            messages.success(request, "You unliked the story.")
-        else:
-            messages.success(request, "You liked the story.")
+    # Check if the user has already liked the story
+    heart, created = Heart.objects.get_or_create(user=request.user, story=story)
+    if not created:
+        heart.delete()  # Remove the like if it already exists
 
-        return redirect('stories') 
+    return redirect('stories')
