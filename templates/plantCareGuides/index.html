@@ -6,14 +6,115 @@
 
 <!-- Main Content -->
 <main class="p-4">
-    <header class="text-center mb-6">
-        <h1 class="text-3xl font-bold text-darkest">Plant Care Guides</h1>
-        <p class="text-slate-600">Your ultimate resource for keeping your plants healthy and thriving.</p>
+    <header class="flex justify-between items-center mb-6 px-8">
+        <div class="text-left">
+            <h1 class="text-3xl font-bold text-darkest">Plant Care Guides</h1>
+            <p class="text-slate-600">Your ultimate resource for keeping your plants healthy and thriving.</p>
+        </div>
+        <!-- Button to Open Modal -->
+        <div class="text-right">
+            <button id="openModalBtn" class="px-4 py-2 bg-mid  text-white text-sm font-semibold rounded-lg hover:bg-green-700 transition duration-300 flex items-center space-x-2">
+                <svg class="w-6 h-6 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 17h6m-3 3v-6M4.857 4h4.286c.473 0 .857.384.857.857v4.286a.857.857 0 0 1-.857.857H4.857A.857.857 0 0 1 4 9.143V4.857C4 4.384 4.384 4 4.857 4Zm10 0h4.286c.473 0 .857.384.857.857v4.286a.857.857 0 0 1-.857.857h-4.286A.857.857 0 0 1 14 9.143V4.857c0-.473.384-.857.857-.857Zm-10 10h4.286c.473 0 .857.384.857.857v4.286a.857.857 0 0 1-.857.857H4.857A.857.857 0 0 1 4 19.143v-4.286c0-.473.384-.857.857-.857Z"/>
+                </svg>
+                <span>Add New Guide</span>
+            </button>
+        </div>
     </header>
+    
 
-        <!-- Button open modal -->
+    <div class="flex flex-wrap justify-center items-center">
+        {% for guide in guides %}
+        
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden max-w-xs w-full mb-6 mt-4 mx-4">
+            <div class="p-4">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center">
+                        <!-- Use the author's image if available -->
+                        <img src="{{ guide.author_image.url }}" alt="{{ guide.author_name }}" class="w-8 h-8 rounded-full">
+                        <span class="text-gray-800 font-semibold ml-2">{{ guide.author_name }}</span>
+                    </div>
+                    <span class="text-gray-600">{{ guide.created_at|date:"F j, Y" }}</span>
+                </div>
+            </div>
+            <!-- Use guide's image if available -->
+            <img src="{{ guide.author_image.url }}" alt="{{ guide.author_name }}" class="w-full h-64 object-cover">
+            <div class="p-4">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">{{ guide.title }}</h2>
+                <p class="text-gray-700 leading-tight mb-4">
+                    {{ guide.description }}
+                </p>
+                <!-- Like Display -->
+            <div class="mt-2 text-sm text-gray-500">
+                <p>Likes: {{ guide.likes }}</p>
+            </div>
+            </div>
+        </div>
+        {% empty %}
+            <p class="text-gray-700">No guides available.</p>
+        {% endfor %}
+    </div>
+    
+    
+    
+    <!-- Modal -->
+    <div id="formModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+            <header class="flex justify-between items-center border-b pb-3 mb-4">
+                <h2 class="text-xl font-bold text-darkest">Add New Guide</h2>
+                <button id="closeModalBtn" class="text-gray-500 hover:text-gray-700">
+                    &times;
+                </button>
+            </header>
+            <form method="post" enctype="multipart/form-data" action="{% url 'add_plant_guide' %}">
+                {% csrf_token %}
+                <div class="mb-4">
+                    <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
+                    <input type="text" id="title" name="title" required
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                </div>
+                <div class="mb-4">
+                    <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+                    <textarea id="description" name="description" rows="4" required
+                              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"></textarea>
+                </div>
+                <div class="mb-4">
+                    <label for="author_name" class="block text-sm font-medium text-gray-700">Author Name</label>
+                    <input type="text" id="author_name" name="author_name" required
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                </div>
+                <div class="mb-4">
+                    <label for="author_image" class="block text-sm font-medium text-gray-700">Author Image</label>
+                    <input type="file" id="author_image" name="author_image"
+                           class="mt-1 block w-full text-sm text-gray-700">
+                </div>
+                <button type="submit"
+                        class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition">
+                    Submit
+                </button>
+            </form>            
+        </div>
+    </div>
 </main>
 
+<!-- Modal JavaScript -->
+<script>
+    const openModalBtn = document.getElementById('openModalBtn');
+    const formModal = document.getElementById('formModal');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const cancelModalBtn = document.getElementById('cancelModalBtn');
+
+    openModalBtn.addEventListener('click', () => {
+        formModal.classList.remove('hidden');
+    });
+
+    closeModalBtn.addEventListener('click', () => {
+        formModal.classList.add('hidden');
+    });
+
+    cancelModalBtn.addEventListener('click', () => {
+        formModal.classList.add('hidden');
+    });
+</script>
+
 {% endblock %}
-
-
