@@ -25,29 +25,29 @@
 
     <div class="flex flex-wrap justify-center items-center">
         {% for guide in guides %}
-        
         <div class="bg-white rounded-lg shadow-lg overflow-hidden max-w-xs w-full mb-6 mt-4 mx-4">
             <div class="p-4">
                 <div class="flex justify-between items-center">
                     <div class="flex items-center">
-                        <!-- Use the author's image if available -->
+                        <!-- Author's image -->
                         <img src="{{ guide.author_image.url }}" alt="{{ guide.author_name }}" class="w-8 h-8 rounded-full">
                         <span class="text-gray-800 font-semibold ml-2">{{ guide.author_name }}</span>
                     </div>
                     <span class="text-gray-600">{{ guide.created_at|date:"F j, Y" }}</span>
                 </div>
             </div>
-            <!-- Use guide's image if available -->
+            <!-- Guide's image -->
             <img src="{{ guide.author_image.url }}" alt="{{ guide.author_name }}" class="w-full h-64 object-cover">
             <div class="p-4">
-                <h2 class="text-2xl font-bold text-gray-800 mb-2">{{ guide.title }}</h2>
+                <!-- Link for the title -->
+                <a href="{% url 'guide_detail' guide.id %}" class="text-2xl font-bold text-indigo-600 hover:underline mb-2 block">
+                    {{ guide.title }}
+                </a>
                 <p class="text-gray-700 leading-tight mb-4">
-                    {{ guide.description }}
+                    {{ guide.description|truncatewords:20 }}  <!-- Truncated description -->
                 </p>
-                <!-- Like Display -->
-            <div class="mt-2 text-sm text-gray-500">
-                <p>Likes: {{ guide.likes }}</p>
-            </div>
+                <!-- Category -->
+                <p class="text-sm text-gray-500"><span class="font-semibold">Category:</span> {{ guide.category }}</p>
             </div>
         </div>
         {% empty %}
@@ -68,31 +68,47 @@
             </header>
             <form method="post" enctype="multipart/form-data" action="{% url 'add_plant_guide' %}">
                 {% csrf_token %}
+                
                 <div class="mb-4">
                     <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
                     <input type="text" id="title" name="title" required
                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                 </div>
+            
                 <div class="mb-4">
                     <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
                     <textarea id="description" name="description" rows="4" required
                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"></textarea>
                 </div>
+            
                 <div class="mb-4">
                     <label for="author_name" class="block text-sm font-medium text-gray-700">Author Name</label>
                     <input type="text" id="author_name" name="author_name" required
                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                 </div>
+            
                 <div class="mb-4">
                     <label for="author_image" class="block text-sm font-medium text-gray-700">Author Image</label>
                     <input type="file" id="author_image" name="author_image"
                            class="mt-1 block w-full text-sm text-gray-700">
                 </div>
+            
+                <div class="mb-4">
+                    <label for="category" class="block text-sm font-medium text-gray-700">Category</label>
+                    <select id="category" name="category" required
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                        <option value="Plant Care Guides" selected>Plant Care Guides</option>
+                        <option value="Gardening Tips">Gardening Tips</option>
+                        <option value="Design Inspirations">Design Inspirations</option>
+                    </select>
+                </div>
+            
                 <button type="submit"
                         class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition">
                     Submit
                 </button>
-            </form>            
+            </form>
+                       
         </div>
     </div>
 </main>

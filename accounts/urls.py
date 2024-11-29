@@ -9,4 +9,5 @@ urlpatterns = [
 
     path('plant-care-guides/', views.plant_care_guides, name='plant_care_guides'),
     path('add-plant-guide/', views.add_plant_guide, name='add_plant_guide'),
+    path('view/<int:guide_id>/', views.guide_detail, name='guide_detail'),  
 ]
