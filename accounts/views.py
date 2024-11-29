@@ -1,11 +1,11 @@
 from django.shortcuts import render
 
-from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import UserRegistrationForm
 from .models import PlantCareGuide
+from .models import PlantCareGuide, Comment
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 
 
 def register(request):
@@ -58,6 +58,30 @@ def add_plant_guide(request):
 
     return render(request, 'plantCareGuides/index.html')
 
+@login_required  # Ensure only logged-in users can comment
 def guide_detail(request, guide_id):
+    # Fetch the specific guide by ID
     guide = get_object_or_404(PlantCareGuide, id=guide_id)
-    return render(request, 'plantCareGuides/view.html', {'guide': guide})
+    
+    # Retrieve all comments associated with the guide
+    comments = guide.comments.all()
+    
+    if request.method == "POST":
+        # Get the comment content from the form
+        content = request.POST.get('content')
+        
+        if content:
+            # Create and save the new comment
+            Comment.objects.create(
+                guide=guide,         # Associate the comment with the guide
+                user=request.user,   # Associate the comment with the logged-in user
+                content=content      # Save the comment content
+            )
+            # Redirect back to the same page after saving the comment
+            return redirect('guide_detail', guide_id=guide.id)
+    
+    # Render the guide detail template, including comments
+    return render(request, 'plantCareGuides/view.html', {
+        'guide': guide,
+        'comments': comments
+    })
