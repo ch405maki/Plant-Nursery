@@ -21,11 +21,11 @@ def register(request):
     return render(request, 'registration/register.html', {'form': form})
 
 def landing_page(request):
-    return render(request, 'accounts/landing_page.html')
+    return render(request, 'landingPage/index.html')
 
 @login_required
 def dashboard(request):
-    return render(request, 'accounts/dashboard.html')
+    return render(request, 'dashboard/index.html')
 
 def plant_care_guides(request):
     guides = PlantCareGuide.objects.all()
