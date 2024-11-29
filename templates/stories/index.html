@@ -3,8 +3,93 @@
 {% block title %}Stories{% endblock %}
 
 {% block content %}
+    <!-- Section for displaying stories -->
+    <div class="container mx-auto py-8">
+        <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-800">Stories</h1>
+        <!-- Button to trigger the Add Story modal -->
+        <button type="button" 
+                class="flex items-center px-4 py-2 bg-mid text-white rounded-md hover:bg-green-700 transition"
+                onclick="openModal('addStoryModal')">
+            <svg class="w-6 h-6 text-white mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                <path stroke="currentColor" stroke-linejoin="round" stroke-width="2" d="M4 18V8a1 1 0 0 1 1-1h1.5l1.707-1.707A1 1 0 0 1 8.914 5h6.172a1 1 0 0 1 .707.293L17.5 7H19a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"/>
+                <path stroke="currentColor" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+            </svg>
+            Add New Story
+        </button>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for story in stories %}
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div class="p-6">
+                <h3 class="text-xl font-bold">{{ story.title }}</h3>
+                <p class="text-gray-600">{{ story.content|truncatewords:20 }}</p>
+                <button type="button" 
+                        class="mt-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+                        onclick="openModal('storyModal{{ story.id }}')">
+                    Read More
+                </button>
+            </div>
+        </div>
 
-{% comment %} content goes here {% endcomment %}
+        <!-- Modal for Viewing a Story -->
+        <div id="storyModal{{ story.id }}" class="modal hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
+            <div class="modal-content bg-white rounded-lg p-8 w-full max-w-lg">
+                <div class="flex justify-between items-center">
+                    <h5 class="text-xl font-bold">{{ story.title }}</h5>
+                    <button type="button" class="text-gray-500 hover:text-red-600 text-2xl" onclick="closeModal('storyModal{{ story.id }}')">&times;</button>
+                </div>
+                <div class="mt-4">
+                    <p>{{ story.content }}</p>
+                    <p class="mt-4"><strong>By:</strong> {{ story.author.username }}</p>
+                    <p><strong>Created At:</strong> {{ story.created_at|date:"F j, Y" }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Modal for Adding a New Story -->
+<div id="addStoryModal" class="modal hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
+    <div class="modal-content bg-white rounded-lg p-8 w-full max-w-lg">
+        <div class="flex justify-between items-center">
+            <h5 class="text-xl font-bold">Add New Story</h5>
+            <button type="button" class="text-gray-500 hover:text-red-600 text-2xl" onclick="closeModal('addStoryModal')">&times;</button>
+        </div>
+        <form method="post" enctype="multipart/form-data" action="{% url 'add_story' %}" class="mt-6">
+            {% csrf_token %}
+            <div class="mb-4">
+                <label for="title" class="block text-gray-700 font-semibold mb-2">Title</label>
+                <input type="text" id="title" name="title" required class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+            </div>
+            <div class="mb-4">
+                <label for="content" class="block text-gray-700 font-semibold mb-2">Content</label>
+                <textarea id="content" name="content" rows="4" required class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"></textarea>
+            </div>
+            <div class="mb-4">
+                <label for="image" class="block text-gray-700 font-semibold mb-2">Image</label>
+                <input type="file" id="image" name="image" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+            </div>
+            <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition">
+                Submit
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openModal(modalId) {
+        const modal = document.getElementById(modalId);
+        modal.classList.remove('hidden');
+    }
+
+    function closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        modal.classList.add('hidden');
+    }
+</script>
 
 {% endblock %}
 

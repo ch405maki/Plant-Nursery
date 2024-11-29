@@ -12,4 +12,5 @@ urlpatterns = [
     path('view/<int:guide_id>/', views.guide_detail, name='guide_detail'),  
 
     path('stories/', views.stories, name='stories'),  
+    path('add-story/', views.add_story, name='add_story'),
 ]

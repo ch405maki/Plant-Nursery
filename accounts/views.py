@@ -4,6 +4,7 @@ from django.contrib import messages
 from .forms import UserRegistrationForm
 from .models import PlantCareGuide
 from .models import PlantCareGuide, Comment
+from .models import Story
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 
@@ -38,19 +39,17 @@ def add_plant_guide(request):
         description = request.POST.get('description')
         author_name = request.POST.get('author_name')
         author_image = request.FILES.get('author_image')
-        category = request.POST.get('category')  # Capture the category value from the form
+        category = request.POST.get('category') 
 
-        # Get the user ID of the current logged-in user
         user_id = request.user.id
 
-        # Create the PlantCareGuide instance with the new category field and user ID
         PlantCareGuide.objects.create(
             title=title,
             description=description,
             author_name=author_name,
             author_image=author_image,
             category=category,
-            user_id=user_id  # Assign the user ID
+            user_id=user_id 
         )
 
         messages.success(request, 'Plant care guide added successfully!')
@@ -58,7 +57,7 @@ def add_plant_guide(request):
 
     return render(request, 'plantCareGuides/index.html')
 
-@login_required  # Ensure only logged-in users can comment
+@login_required
 def guide_detail(request, guide_id):
     
     # Fetch the specific guide by ID
@@ -89,4 +88,13 @@ def guide_detail(request, guide_id):
 
 @login_required
 def stories(request):
-    return render(request, 'stories/index.html')
+    stories = Story.objects.all()
+    return render(request, 'stories/index.html', {'stories': stories})
+
+def add_story(request):
+    if request.method == "POST":
+        title = request.POST['title']
+        content = request.POST['content']
+        image = request.FILES.get('image')
+        Story.objects.create(author=request.user, title=title, content=content, image=image)
+        return redirect('stories')  # Redirect to stories page
