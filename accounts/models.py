@@ -48,3 +48,14 @@ class Heart(models.Model):
     def __str__(self):
         return f"{self.user.username} liked {self.story.title}"
 
+class StoryComment(models.Model):
+    story = models.ForeignKey(Story, related_name='comments', on_delete=models.CASCADE)  # Link to Story
+    user = models.ForeignKey(User, on_delete=models.CASCADE)  # Link to User
+    content = models.TextField()  # The actual content of the comment
+    created_at = models.DateTimeField(auto_now_add=True)  # Timestamp of when the comment was created
+
+    class Meta:
+        db_table = 'story_comment'  # Custom table name
+
+    def __str__(self):
+        return f"{self.user.username} commented on {self.story.title}"

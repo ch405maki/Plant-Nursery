@@ -1,0 +1,54 @@
+{% extends 'component/authenticatedbase.html' %}
+
+{% block title %}Story Details{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-6 py-8">
+
+    <!-- Story Details -->
+    <div class="bg-white shadow-md rounded-lg p-6 mb-8">
+        <h2 class="text-3xl font-bold text-gray-800">{{ story.title }}</h2>
+        
+        <!-- Display Story Image (if exists) -->
+        {% if story.image %}
+            <img src="{{ story.image.url }}" alt="{{ story.title }}" class="w-full h-auto rounded-lg mt-4">
+        {% endif %}
+        
+        <p class="text-gray-600 mt-4">{{ story.content }}</p>
+        <div class="mt-6">
+            <p><strong class="font-semibold">By:</strong> {{ story.author.username }}</p>
+            <p><strong class="font-semibold">Created on:</strong> {{ story.created_at|date:"F j, Y" }}</p>
+        </div>
+    </div>
+
+    <!-- Comment Form -->
+    <div class="bg-white shadow-md rounded-lg p-6 mb-8">
+        <h3 class="text-xl font-semibold text-gray-800">Add a Comment</h3>
+        <form method="POST" action="{% url 'add_comment' story.id %}" class="mt-4">
+            {% csrf_token %}
+            <textarea name="content" class="w-full p-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Write your comment here..." required></textarea>
+            <button type="submit" class="mt-4 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all duration-200">Post Comment</button>
+        </form>
+    </div>
+
+    <!-- Display Comments -->
+    <div class="bg-white shadow-md rounded-lg p-6">
+        <h4 class="text-xl font-semibold text-gray-800">Comments:</h4>
+        <ul class="mt-6 space-y-4">
+            {% for comment in comments %}
+                <li class="p-4 bg-gray-50 rounded-md border border-gray-200">
+                    <div class="flex justify-between">
+                        <strong class="text-gray-700">{{ comment.user.username }}</strong>
+                        <span class="text-gray-500 text-sm">{{ comment.created_at|date:"F j, Y, g:i A" }}</span>
+                    </div>
+                    <p class="text-gray-600 mt-2">Says: {{ comment.content }}</p>
+                </li>
+            {% empty %}
+                <li class="py-2 text-gray-500">No comments yet.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+</div>
+{% endblock %}
+    

@@ -13,6 +13,8 @@ urlpatterns = [
 
     path('stories/', views.stories, name='stories'),  
     path('add-story/', views.add_story, name='add_story'),
-
     path('story/<int:story_id>/heart/', views.toggle_heart, name='toggle_heart'),
+    path('story/<int:story_id>/view/', views.view_story, name='view_story'),
+    path('story/<int:story_id>/add_comment/', views.add_comment, name='add_comment'),
+
 ]

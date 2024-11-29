@@ -8,6 +8,9 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from .forms import StoryComment
+from django.contrib.auth.models import User
+from .forms import StoryCommentForm
 
 
 def register(request):
@@ -119,3 +122,30 @@ def toggle_heart(request, story_id):
         heart.delete()  # Remove the like if it already exists
 
     return redirect('stories')
+
+def view_story(request, story_id):
+    story = get_object_or_404(Story, id=story_id)
+    comments = story.comments.all()  # Use the related_name 'comments'
+
+    return render(request, 'stories/view.html', {
+        'story': story,
+        'comments': comments
+    })
+
+def add_comment(request, story_id):
+    story = get_object_or_404(Story, id=story_id)
+
+    if request.method == 'POST':
+        form = StoryCommentForm(request.POST)
+        if form.is_valid():
+            # Create the comment and associate it with the user and story
+            StoryComment.objects.create(
+                story=story,
+                user=request.user,
+                content=form.cleaned_data['content']
+            )
+            return redirect('view_story', story_id=story.id)  # Redirect to the story detail page
+    else:
+        form = StoryCommentForm()
+
+    return render(request, 'story/view_story.html', {'story': story, 'form': form})

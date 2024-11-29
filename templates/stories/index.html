@@ -22,58 +22,55 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {% for story in stories %}
         <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div class="relative">
+                <!-- Display Story Image -->
+                {% if story.image %}
+                    <img src="{{ story.image.url }}" alt="{{ story.title }}" class="w-full h-64 object-cover rounded-t-lg">
+                {% endif %}
+            </div>
+
             <div class="p-6">
-                <div class="flex justify-between items-center">
-                    <h3 class="text-xl font-bold">{{ story.title }}</h3>
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-2xl font-bold text-gray-800">{{ story.title }}</h3>
+                    
                     <!-- Heart icon -->
                     <form method="post" action="{% url 'toggle_heart' story.id %}">
                         {% csrf_token %}
                         <button type="submit" class="flex items-center transition">
-                                <svg class="w-6 h-6 mr-1" 
-                                    xmlns="http://www.w3.org/2000/svg" 
-                                    fill="{% if story.user_has_liked %}red{% else %}none{% endif %}" 
-                                    viewBox="0 0 24 24" 
-                                    stroke="currentColor" 
-                                    stroke-width="2" 
-                                    stroke="{% if story.user_has_liked %}red{% else %}gray{% endif %}">
-                                    <path stroke-linecap="round" stroke-linejoin="round" 
-                                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 10-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                </svg>
+                            <svg class="w-6 h-6 mr-1" 
+                                xmlns="http://www.w3.org/2000/svg" 
+                                fill="{% if story.user_has_liked %}red{% else %}none{% endif %}" 
+                                viewBox="0 0 24 24" 
+                                stroke="currentColor" 
+                                stroke-width="2" 
+                                stroke="{% if story.user_has_liked %}red{% else %}gray{% endif %}">
+                                <path stroke-linecap="round" stroke-linejoin="round" 
+                                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 10-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                            </svg>
                             <span>{{ story.hearts_count }}</span>
                         </button>
                     </form>
                 </div>
-                <p class="text-gray-600">{{ story.content|truncatewords:20 }}</p>
-                <button type="button" 
-                        class="mt-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
-                        onclick="openModal('storyModal{{ story.id }}')">
+
+                <!-- Story Content with Truncated Text -->
+                <p class="text-gray-600 mb-4">{{ story.content|truncatewords:20 }}</p>
+
+                <!-- Redirect to the story view page -->
+                <a href="{% url 'view_story' story.id %}" 
+                   class="mt-2 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
                     Read More
-                </button>
-            </div>
-        </div>
-        
-        <!-- Modal for Viewing a Story -->
-        <div id="storyModal{{ story.id }}" class="modal hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
-            <div class="modal-content bg-white rounded-lg p-8 w-full max-w-lg">
-                <div class="flex justify-between items-center">
-                    <h5 class="text-xl font-bold">{{ story.title }}</h5>
-                    <button type="button" class="text-gray-500 hover:text-red-600 text-2xl" onclick="closeModal('storyModal{{ story.id }}')">&times;</button>
-                </div>
-                <div class="mt-4">
-                    <p>{{ story.content }}</p>
-                    <p class="mt-4"><strong>By:</strong> {{ story.author.username }}</p>
-                    <p><strong>Created At:</strong> {{ story.created_at|date:"F j, Y" }}</p>
-                </div>
+                </a>
             </div>
         </div>
         {% endfor %}
     </div>
-</div>
 {% else %}
     <div class="text-center">
         <p class="text-gray-500 mt-4">No stories available. Be the first to add one!</p>
     </div>
 {% endif %}
+
+
 
 
 <!-- Modal for Adding a New Story -->
