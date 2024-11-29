@@ -13,4 +13,6 @@ urlpatterns = [
 
     path('stories/', views.stories, name='stories'),  
     path('add-story/', views.add_story, name='add_story'),
+
+    path('story/<int:story_id>/heart/', views.toggle_heart, name='toggle_heart'),
 ]

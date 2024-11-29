@@ -33,3 +33,14 @@ class Story(models.Model):
 
     def __str__(self):
         return self.title
+    
+class Heart(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="hearts")
+    story = models.ForeignKey('Story', on_delete=models.CASCADE, related_name="hearts")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'story')  # Ensure a user can like a story only once
+
+    def __str__(self):
+        return f"{self.user.username} liked {self.story.title}"

@@ -3,6 +3,15 @@
 {% block title %}Stories{% endblock %}
 
 {% block content %}
+{% if messages %}
+    <div class="fixed top-0 right-0 m-4">
+        {% for message in messages %}
+            <div class="bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
     <!-- Section for displaying stories -->
     <div class="container mx-auto py-8">
         <div class="flex justify-between items-center mb-6">
@@ -18,12 +27,27 @@
             Add New Story
         </button>
     </div>
-    
+    {% if stories %}
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {% for story in stories %}
         <div class="bg-white rounded-lg shadow-lg overflow-hidden">
             <div class="p-6">
-                <h3 class="text-xl font-bold">{{ story.title }}</h3>
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-bold">{{ story.title }}</h3>
+                    <!-- Heart icon -->
+                    <form method="post" action="{% url 'toggle_heart' story.id %}">
+                        {% csrf_token %}
+                        <button type="submit" 
+                                class="flex items-center text-gray-400 hover:text-red-500 transition">
+                            <svg class="w-6 h-6 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 10-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                            </svg>
+                            <span>{{ story.hearts.count }}</span>
+                        </button>
+                    </form>
+                    
+                </div>
                 <p class="text-gray-600">{{ story.content|truncatewords:20 }}</p>
                 <button type="button" 
                         class="mt-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
@@ -32,7 +56,7 @@
                 </button>
             </div>
         </div>
-
+        
         <!-- Modal for Viewing a Story -->
         <div id="storyModal{{ story.id }}" class="modal hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
             <div class="modal-content bg-white rounded-lg p-8 w-full max-w-lg">
@@ -50,6 +74,13 @@
         {% endfor %}
     </div>
 </div>
+{% else %}
+    <div class="text-center">
+        {% comment %} <img src="{% static 'images/empty_state.svg' %}" alt="No Stories" class="mx-auto w-48 h-48"> {% endcomment %}
+        <p class="text-gray-500 mt-4">No stories available. Be the first to add one!</p>
+    </div>
+{% endif %}
+
 
 <!-- Modal for Adding a New Story -->
 <div id="addStoryModal" class="modal hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
@@ -89,7 +120,36 @@
         const modal = document.getElementById(modalId);
         modal.classList.add('hidden');
     }
+
+    function toggleHeart(storyId) {
+        fetch(`/story/${storyId}/heart/`, {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": "{{ csrf_token }}",
+                "Content-Type": "application/json",
+            },
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.hearts !== undefined) {
+                document.getElementById(`heartCount${storyId}`).innerText = data.hearts;
+            } else if (data.error) {
+                alert(data.error);
+            }
+        })
+        .catch(error => console.error("Error:", error));
+    }
+    
+    
+
+    
 </script>
+
 
 {% endblock %}
 

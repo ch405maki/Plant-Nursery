@@ -1,12 +1,13 @@
 from django.shortcuts import render
-
 from django.contrib import messages
 from .forms import UserRegistrationForm
-from .models import PlantCareGuide
 from .models import PlantCareGuide, Comment
-from .models import Story
+from .models import Story, Heart
+from django.db.models import Count
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
 
 def register(request):
@@ -88,7 +89,7 @@ def guide_detail(request, guide_id):
 
 @login_required
 def stories(request):
-    stories = Story.objects.all()
+    stories = Story.objects.annotate(total_hearts=Count('hearts'))
     return render(request, 'stories/index.html', {'stories': stories})
 
 def add_story(request):
@@ -97,4 +98,18 @@ def add_story(request):
         content = request.POST['content']
         image = request.FILES.get('image')
         Story.objects.create(author=request.user, title=title, content=content, image=image)
-        return redirect('stories')  # Redirect to stories page
+        return redirect('stories')
+    
+@login_required
+def toggle_heart(request, story_id):
+    if request.method == "POST":
+        story = get_object_or_404(Story, id=story_id)
+        heart, created = Heart.objects.get_or_create(user=request.user, story=story)
+
+        if not created:
+            heart.delete()
+            messages.success(request, "You unliked the story.")
+        else:
+            messages.success(request, "You liked the story.")
+
+        return redirect('stories') 
