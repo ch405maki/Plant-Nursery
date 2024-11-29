@@ -60,6 +60,7 @@ def add_plant_guide(request):
 
 @login_required  # Ensure only logged-in users can comment
 def guide_detail(request, guide_id):
+    
     # Fetch the specific guide by ID
     guide = get_object_or_404(PlantCareGuide, id=guide_id)
     
@@ -85,3 +86,7 @@ def guide_detail(request, guide_id):
         'guide': guide,
         'comments': comments
     })
+
+@login_required
+def stories(request):
+    return render(request, 'stories/index.html')
