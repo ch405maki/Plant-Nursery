@@ -9,9 +9,32 @@ class PlantCareGuide(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     category = models.CharField(max_length=100, default='Uncategorized')
+    is_draft = models.BooleanField(default=True)
 
     def __str__(self):
         return self.title
+
+class HeartGuide(models.Model):
+    guide = models.ForeignKey(PlantCareGuide, related_name='hearts', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('guide', 'user')  # Prevent duplicate hearts by the same user
+
+    def __str__(self):
+        return f"{self.user.username} liked {self.guide.title}"
+    
+class SavedGuide(models.Model):
+    guide = models.ForeignKey(PlantCareGuide, related_name='saved_guides', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('guide', 'user')  # Prevent duplicate saved guides
+
+    def __str__(self):
+        return f"{self.user.username} saved {self.guide.title}"
+
     
 class Comment(models.Model):
     guide = models.ForeignKey('PlantCareGuide', on_delete=models.CASCADE, related_name='comments')

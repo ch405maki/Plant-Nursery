@@ -28,8 +28,8 @@
         <div class="bg-white rounded-lg shadow-lg overflow-hidden max-w-xs w-full mb-6 mt-4 mx-4">
             <div class="p-4">
                 <div class="flex justify-between items-center">
+                    <!-- Author's image -->
                     <div class="flex items-center">
-                        <!-- Author's image -->
                         <img src="{{ guide.author_image.url }}" alt="{{ guide.author_name }}" class="w-8 h-8 rounded-full">
                         <span class="text-gray-800 font-semibold ml-2">{{ guide.author_name }}</span>
                     </div>
@@ -39,15 +39,45 @@
             <!-- Guide's image -->
             <img src="{{ guide.author_image.url }}" alt="{{ guide.author_name }}" class="w-full h-64 object-cover">
             <div class="p-4">
-                <!-- Link for the title -->
                 <a href="{% url 'guide_detail' guide.id %}" class="text-2xl font-bold text-indigo-600 hover:underline mb-2 block">
                     {{ guide.title }}
                 </a>
                 <p class="text-gray-700 leading-tight mb-4">
-                    {{ guide.description|truncatewords:20 }}  <!-- Truncated description -->
+                    {{ guide.description|truncatewords:20 }}
                 </p>
-                <!-- Category -->
                 <p class="text-sm text-gray-500"><span class="font-semibold">Category:</span> {{ guide.category }}</p>
+    
+                <!-- Heart and Save Buttons aligned side by side -->
+                <div class="flex items-center space-x-4 mt-4">
+                    <!-- Heart Button -->
+                    <form method="post" action="{% url 'toggle_heart_guide' guide.id %}" class="flex items-center">
+                        {% csrf_token %}
+                        <button type="submit" class="flex items-center">
+                            <svg class="w-6 h-6 mr-2" xmlns="http://www.w3.org/2000/svg"
+                                fill="{% if guide.user_has_liked %}red{% else %}none{% endif %}"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke="{% if guide.user_has_liked %}red{% else %}gray{% endif %}">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 10-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                            </svg>
+                            <span>{{ guide.hearts.count }}</span>
+                        </button>
+                    </form>
+                    <!-- Save Button -->
+                    <form method="post" action="{% url 'toggle_save_guide' guide.id %}" class="flex items-center">
+                        {% csrf_token %}
+                        <button type="submit" class="flex items-center">
+                            <svg class="w-6 h-6 mr-2"
+                                fill="{% if guide.user_has_saved %}blue{% else %}none{% endif %}" 
+                                stroke="{% if guide.user_has_saved %}blue{% else %}gray{% endif %}" 
+                                xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M7.833 2c-.507 0-.98.216-1.318.576A1.92 1.92 0 0 0 6 3.89V21a1 1 0 0 0 1.625.78L12 18.28l4.375 3.5A1 1 0 0 0 18 21V3.889c0-.481-.178-.954-.515-1.313A1.808 1.808 0 0 0 16.167 2H7.833Z"/>
+                            </svg>
+                            <span>{{ guide.saved_guides.count }}</span> Save
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
         {% empty %}
@@ -55,62 +85,69 @@
         {% endfor %}
     </div>
     
-    
-    
     <!-- Modal -->
-    <div id="formModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
-        <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
-            <header class="flex justify-between items-center border-b pb-3 mb-4">
-                <h2 class="text-xl font-bold text-darkest">Add New Guide</h2>
-                <button id="closeModalBtn" class="text-gray-500 hover:text-gray-700">
-                    &times;
-                </button>
-            </header>
-            <form method="post" enctype="multipart/form-data" action="{% url 'add_plant_guide' %}">
-                {% csrf_token %}
-                
-                <div class="mb-4">
-                    <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
-                    <input type="text" id="title" name="title" required
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                </div>
+<div id="formModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+        <header class="flex justify-between items-center border-b pb-3 mb-4">
+            <h2 class="text-xl font-bold text-darkest">Add New Guide</h2>
+            <button id="closeModalBtn" class="text-gray-500 hover:text-gray-700">
+                &times;
+            </button>
+        </header>
+        <form method="post" enctype="multipart/form-data" action="{% url 'add_plant_guide' %}">
+            {% csrf_token %}
             
-                <div class="mb-4">
-                    <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
-                    <textarea id="description" name="description" rows="4" required
-                              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"></textarea>
-                </div>
-            
-                <div class="mb-4">
-                    <label for="author_name" class="block text-sm font-medium text-gray-700">Author Name</label>
-                    <input type="text" id="author_name" name="author_name" required
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                </div>
-            
-                <div class="mb-4">
-                    <label for="author_image" class="block text-sm font-medium text-gray-700">Author Image</label>
-                    <input type="file" id="author_image" name="author_image"
-                           class="mt-1 block w-full text-sm text-gray-700">
-                </div>
-            
-                <div class="mb-4">
-                    <label for="category" class="block text-sm font-medium text-gray-700">Category</label>
-                    <select id="category" name="category" required
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                        <option value="Plant Care Guides" selected>Plant Care Guides</option>
-                        <option value="Gardening Tips">Gardening Tips</option>
-                        <option value="Design Inspirations">Design Inspirations</option>
-                    </select>
-                </div>
-            
-                <button type="submit"
-                        class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition">
-                    Submit
-                </button>
-            </form>
-                       
-        </div>
+            <div class="mb-4">
+                <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
+                <input type="text" id="title" name="title" required
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+            </div>
+        
+            <div class="mb-4">
+                <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+                <textarea id="description" name="description" rows="4" required
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"></textarea>
+            </div>
+        
+            <div class="mb-4">
+                <label for="author_name" class="block text-sm font-medium text-gray-700">Author Name</label>
+                <input type="text" id="author_name" name="author_name" required
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+            </div>
+        
+            <div class="mb-4">
+                <label for="author_image" class="block text-sm font-medium text-gray-700">Author Image</label>
+                <input type="file" id="author_image" name="author_image"
+                    class="mt-1 block w-full text-sm text-gray-700">
+            </div>
+        
+            <div class="mb-4">
+                <label for="category" class="block text-sm font-medium text-gray-700">Category</label>
+                <select id="category" name="category" required
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    <option value="Plant Care Guides" selected>Plant Care Guides</option>
+                    <option value="Gardening Tips">Gardening Tips</option>
+                    <option value="Design Inspirations">Design Inspirations</option>
+                </select>
+            </div>
+        
+            <!-- Hidden field to distinguish between Draft and Submit -->
+            <input type="hidden" id="is_draft" name="is_draft" value="True">
+
+            <button type="submit"
+                    class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition"
+                    onclick="this.form.is_draft.value = 'True'">
+                Save Draft
+            </button>
+
+            <button type="submit"
+                    class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition mt-2"
+                    onclick="this.form.is_draft.value = 'False'">
+                Submit Guide
+            </button>
+        </form>
     </div>
+</div>
 </main>
 
 <!-- Modal JavaScript -->

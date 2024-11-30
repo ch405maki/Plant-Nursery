@@ -1,7 +1,6 @@
 from django.shortcuts import render
 from django.contrib import messages
 from .forms import UserRegistrationForm
-from .models import PlantCareGuide, Comment
 from .models import Story, Heart
 from django.db.models import Count
 from django.contrib.auth.decorators import login_required
@@ -11,6 +10,9 @@ from django.views.decorators.csrf import csrf_exempt
 from .forms import StoryComment
 from django.contrib.auth.models import User
 from .forms import StoryCommentForm
+from .models import PlantCareGuide, HeartGuide, Comment, SavedGuide
+from django.db.models import Exists, OuterRef
+
 
 
 def register(request):
@@ -33,62 +35,152 @@ def dashboard(request):
     return render(request, 'dashboard/index.html')
 
 def plant_care_guides(request):
-    guides = PlantCareGuide.objects.all()
+    """
+    View for displaying all plant care guides, excluding drafts and including
+    whether the logged-in user has liked each guide.
+    """
+    # Filter out drafts by ensuring only guides where is_draft is False are shown
+    guides = PlantCareGuide.objects.filter(is_draft=False)
+
+    if request.user.is_authenticated:
+        # Annotate whether the current user has liked each guide
+        user_hearts = HeartGuide.objects.filter(guide=OuterRef('pk'), user=request.user)
+        guides = guides.annotate(user_has_liked=Exists(user_hearts))
+
     return render(request, 'plantCareGuides/index.html', {'guides': guides})
 
-@login_required  # Ensure that the user is logged in
-def add_plant_guide(request):
+@login_required
+def update_draft(request, draft_id):
+    """
+    View to update a saved draft and optionally publish it as a guide.
+    """
+    draft = get_object_or_404(PlantCareGuide, id=draft_id, user=request.user, is_draft=True)
+
     if request.method == "POST":
+        # Update the fields based on form data
+        draft.title = request.POST.get("title")
+        draft.description = request.POST.get("description")
+        draft.author_name = request.POST.get("author_name")
+        draft.category = request.POST.get("category")
+        draft.is_draft = False
+        
+        # Handle author image upload
+        if "author_image" in request.FILES:
+            draft.author_image = request.FILES["author_image"]
+        
+        draft.save()
+
+        # Redirect based on action
+        if not draft.is_draft:
+            return redirect("plant_care_guides")  # Redirect to guides page
+        return redirect("drafts")  # Redirect to drafts page
+
+    return render(request, "plantCareGuides/update_draft.html", {"draft": draft})
+
+
+@login_required
+def add_plant_guide(request):
+    """
+    View to handle adding a new plant care guide. Includes functionality for saving drafts.
+    """
+    if request.method == 'POST':
         title = request.POST.get('title')
         description = request.POST.get('description')
         author_name = request.POST.get('author_name')
         author_image = request.FILES.get('author_image')
-        category = request.POST.get('category') 
+        category = request.POST.get('category')
+        is_draft = request.POST.get('is_draft') == 'True'  # Get the draft status
 
-        user_id = request.user.id
-
-        PlantCareGuide.objects.create(
+        # Save the guide to the database
+        guide = PlantCareGuide.objects.create(
             title=title,
             description=description,
             author_name=author_name,
             author_image=author_image,
             category=category,
-            user_id=user_id 
+            user=request.user,
+            is_draft=is_draft
         )
 
-        messages.success(request, 'Plant care guide added successfully!')
+        # Redirect to a page after saving the guide (could be saved drafts page or success page)
         return redirect('plant_care_guides')
 
-    return render(request, 'plantCareGuides/index.html')
+    return render(request, 'add_plant_guide.html')
+
+@login_required
+def saved_drafts(request):
+    """
+    View to show all drafts for the logged-in user.
+    """
+    drafts = PlantCareGuide.objects.filter(user=request.user, is_draft=True)
+    return render(request, 'plantCareGuides/drafts.html', {'drafts': drafts})
+
 
 @login_required
 def guide_detail(request, guide_id):
-    
-    # Fetch the specific guide by ID
+    """
+    View for displaying a single guide and its comments.
+    Allows posting new comments.
+    """
     guide = get_object_or_404(PlantCareGuide, id=guide_id)
-    
-    # Retrieve all comments associated with the guide
     comments = guide.comments.all()
-    
+
+    # Check if the user has liked the guide
+    user_has_liked = guide.hearts.filter(user=request.user).exists()
+
     if request.method == "POST":
-        # Get the comment content from the form
         content = request.POST.get('content')
-        
         if content:
-            # Create and save the new comment
             Comment.objects.create(
-                guide=guide,         # Associate the comment with the guide
-                user=request.user,   # Associate the comment with the logged-in user
-                content=content      # Save the comment content
+                guide=guide,
+                user=request.user,
+                content=content
             )
-            # Redirect back to the same page after saving the comment
+            messages.success(request, "Your comment has been added!")
             return redirect('guide_detail', guide_id=guide.id)
-    
-    # Render the guide detail template, including comments
+
     return render(request, 'plantCareGuides/view.html', {
         'guide': guide,
-        'comments': comments
+        'comments': comments,
+        'user_has_liked': user_has_liked
     })
+
+
+@login_required
+def toggle_heart_guide(request, guide_id):
+    """
+    View to toggle (add/remove) a heart for a guide by the logged-in user.
+    """
+    guide = get_object_or_404(PlantCareGuide, id=guide_id)
+    heart, created = HeartGuide.objects.get_or_create(guide=guide, user=request.user)
+
+    if not created:
+        heart.delete()
+
+    # Redirect back to the index page
+    return redirect('plant_care_guides')
+
+@login_required
+def toggle_save_guide(request, guide_id):
+    """
+    View to toggle (add/remove) a saved guide for the logged-in user.
+    """
+    guide = get_object_or_404(PlantCareGuide, id=guide_id)
+    saved_guide, created = SavedGuide.objects.get_or_create(guide=guide, user=request.user)
+
+    if not created:
+        saved_guide.delete()
+
+    return redirect('plant_care_guides')  # Redirect to the guides list or to the saved guides page
+
+@login_required
+def saved_guides(request):
+    """
+    View to show all saved guides for the logged-in user.
+    """
+    saved_guides = SavedGuide.objects.filter(user=request.user)
+    return render(request, 'plantCareGuides/saved.html', {'saved_guides': saved_guides})
+
 
 @login_required
 def stories(request):

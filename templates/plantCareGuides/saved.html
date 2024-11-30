@@ -1,0 +1,37 @@
+{% extends 'component/authenticatedbase.html' %}
+
+{% block title %}Saved Guides{% endblock %}
+
+{% block content %}
+    <div class="max-w-screen-xl mx-auto px-4 py-8">
+        <h1 class="text-3xl font-semibold text-center mb-8">Your Saved Guides</h1>
+        <div class="flex flex-wrap justify-center items-start">
+            {% for saved_guide in saved_guides %}
+            <div class="bg-white rounded-lg shadow-xl overflow-hidden max-w-xs w-full mb-6 mt-4 mx-4 hover:shadow-2xl transition-shadow duration-300 ease-in-out">
+                <!-- Author and Date -->
+                <div class="p-4">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center space-x-2">
+                            <img src="{{ saved_guide.guide.author_image.url }}" alt="{{ saved_guide.guide.author_name }}" class="w-10 h-10 rounded-full">
+                            <span class="text-gray-800 font-semibold text-lg">{{ saved_guide.guide.author_name }}</span>
+                        </div>
+                        <span class="text-gray-600 text-sm">{{ saved_guide.guide.created_at|date:"F j, Y" }}</span>
+                    </div>
+                </div>
+                <!-- Guide Image -->
+                <img src="{{ saved_guide.guide.author_image.url }}" alt="{{ saved_guide.guide.author_name }}" class="w-full h-64 object-cover border-b border-gray-200">
+                <!-- Guide Content -->
+                <div class="p-4">
+                    <a href="{% url 'guide_detail' saved_guide.guide.id %}" class="text-2xl font-bold text-indigo-600 hover:text-indigo-800 mb-2 block">
+                        {{ saved_guide.guide.title }}
+                    </a>
+                    <p class="text-gray-700 leading-tight mb-4">{{ saved_guide.guide.description|truncatewords:20 }}</p>
+                    <p class="text-sm text-gray-500"><span class="font-semibold">Category:</span> {{ saved_guide.guide.category }}</p>
+                </div>
+            </div>
+            {% empty %}
+                <p class="text-center text-gray-700 text-lg">You haven't saved any guides yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
