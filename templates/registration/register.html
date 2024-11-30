@@ -11,45 +11,84 @@
     <!-- Include Navigation Bar -->
     {% include 'component/nav.html' %}
 
-    <div class="flex justify-center items-center h-screen bg-white">
+    <div class="flex justify-center items-center pt-8 bg-white">
         <div class="grid md:grid-cols-2 grid-cols-1">
             <!-- Left Side with Image -->
             <div>
-                <img src="{% static 'images/hero.jpg' %}" alt="Plant Nursery Logo" class="h-full w-full object-cover p-12">
+                <img src="{% static 'images/hero.jpg' %}" alt="Plant Nursery Logo" class="object-cover p-12 mt-16">
             </div>
     
             <!-- Right Side with Form -->
             <div class="flex justify-center items-center pb-5">
-                <form method="POST" class="w-full max-w-xl">
+                <form method="POST" enctype="multipart/form-data" class="w-full max-w-xl">
                     {% csrf_token %}
                     <h1 class="text-start mb-10 font-bold text-4xl">Register</h1>
                     
-                    <!-- Django Form Fields -->
-                    {{ form.as_p }}
-                    
+                    <!-- First Name -->
+                    <div class="mb-4">
+                        <label for="id_first_name" class="block text-sm font-medium text-gray-700">First Name</label>
+                        {{ form.first_name }}
+                    </div>
+
+                    <div class="mb-4">
+                        <label  class="block text-sm font-medium text-gray-700">Middle Name</label>
+                        <input type="text" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" >
+                    </div>
+
+                    <!-- Last Name -->
+                    <div class="mb-4">
+                        <label for="id_last_name" class="block text-sm font-medium text-gray-700">Last Name</label>
+                        {{ form.last_name }}
+                    </div>
+                
+                    <!-- Username -->
+                    <div class="mb-4">
+                        <label for="id_username" class="block text-sm font-medium text-gray-700">Username</label>
+                        {{ form.username }}
+                    </div>
+                
+                    <!-- Email -->
+                    <div class="mb-4">
+                        <label for="id_email" class="block text-sm font-medium text-gray-700">Email</label>
+                        {{ form.email }}
+                    </div>
+                
+                    <!-- Birthdate -->
+                    <div class="mb-4">
+                        <label for="id_birthdate" class="block text-sm font-medium text-gray-700">Birthdate</label>
+                        {{ form.birthdate }}
+                    </div>
+                
+                    <!-- Phone Number -->
+                    <div class="mb-4">
+                        <label for="id_phone_number" class="block text-sm font-medium text-gray-700">Phone Number</label>
+                        {{ form.phone_number }}
+                    </div>
+                
+                    <!-- Profile Picture -->
+                    <div class="mb-4">
+                        <label for="id_profile_picture" class="block text-sm font-medium text-gray-700">Profile Picture</label>
+                        {{ form.profile_picture }}
+                    </div>
+                
+                    <!-- Password -->
+                    <div class="mb-4">
+                        <label for="id_password1" class="block text-sm font-medium text-gray-700">Password</label>
+                        {{ form.password1 }}
+                    </div>
+                
+                    <!-- Confirm Password -->
+                    <div class="mb-4">
+                        <label for="id_password2" class="block text-sm font-medium text-gray-700">Confirm Password</label>
+                        {{ form.password2 }}
+                    </div>
+                
                     <!-- Submit Button -->
                     <button type="submit" class="bg-darkest border outline-none rounded-md py-3 w-full px-4 font-semibold text-white">
                         Register
                     </button>
-
-                    <a href="/accounts/login/" class="mt-4 block text-center border rounded-md py-3 w-full font-semibold text-darkest hover:bg-gray-100">
-                        Allready Have An Account? Login Here...
-                    </a>
-                    
-                    <!-- Form Errors -->
-                    {% if form.errors %}
-                        <div class="mt-4 text-red-500">
-                            {% for field in form %}
-                                {% for error in field.errors %}
-                                    <p class="text-sm">{{ error }}</p>
-                                {% endfor %}
-                            {% endfor %}
-                            {% for error in form.non_field_errors %}
-                                <p class="text-sm">{{ error }}</p>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
                 </form>
+                
             </div>
         </div>
     </div>

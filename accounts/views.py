@@ -12,19 +12,71 @@ from django.contrib.auth.models import User
 from .forms import StoryCommentForm
 from .models import PlantCareGuide, HeartGuide, Comment, SavedGuide
 from django.db.models import Exists, OuterRef
+from .forms import ProfileUpdateForm, UserUpdateForm
+from django.db import transaction
+from .models import Profile
 
 
+@login_required
+def edit_profile(request):
+    user = request.user
+
+    # Ensure the user has a profile
+    profile, created = Profile.objects.get_or_create(user=user)
+
+    if request.method == "POST":
+        user_form = UserUpdateForm(request.POST, instance=user)
+        profile_form = ProfileUpdateForm(request.POST, request.FILES, instance=profile)
+
+        if user_form.is_valid() and profile_form.is_valid():
+            with transaction.atomic():  # Ensure atomic save
+                user_form.save()
+                profile_form.save()
+            messages.success(request, "Your profile was successfully updated!")
+            return redirect("dashboard")  # Redirect to the dashboard or any page
+
+    else:
+        user_form = UserUpdateForm(instance=user)
+        profile_form = ProfileUpdateForm(instance=profile)
+
+    return render(request, "accounts/edit_profile.html", {
+        "user_form": user_form,
+        "profile_form": profile_form,
+    })
+
+@login_required
+def profile(request):
+    """
+    View to display the user's profile information.
+    """
+    user_profile = Profile.objects.get(user=request.user)
+    return render(request, 'accounts/profile.html', {'profile': user_profile})
+
+@login_required
+def profile_view(request):
+    profile = request.user.profile
+    return render(request, "accounts/profile.html", {"profile": profile})
 
 def register(request):
     if request.method == 'POST':
-        form = UserRegistrationForm(request.POST)
+        form = UserRegistrationForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
-            username = form.cleaned_data.get('username')
-            messages.success(request, f'Account created for {username}!')
-            return redirect('login')
+            user = form.save()
+
+            # Check if the user already has a profile
+            if not hasattr(user, 'profile'):
+                # Create a profile if it doesn't exist
+                Profile.objects.create(user=user)
+
+            # Redirect to a success page or login
+            return redirect('login')  # Redirect to the login page, or another page you prefer
+        else:
+            # Handle form errors
+            pass
+
     else:
         form = UserRegistrationForm()
+
     return render(request, 'registration/register.html', {'form': form})
 
 def landing_page(request):
