@@ -20,7 +20,6 @@ urlpatterns = [
     path('drafts/', views.saved_drafts, name='drafts'),
     path('drafts/<int:draft_id>/update/', views.update_draft, name='update_draft'),
 
-
     path('stories/', views.stories, name='stories'),  
     path('add-story/', views.add_story, name='add_story'),
     path('story/<int:story_id>/heart/', views.toggle_heart, name='toggle_heart'),
@@ -33,4 +32,6 @@ urlpatterns = [
     path('uploaded/qa/', views.uploaded_design_inspirations, name='uploaded_qa'),
     path('uploaded/stories/', views.uploaded_stories, name='uploaded_stories'),
 
+    path('notifications/', views.notifications, name='notifications'),
+    path('notifications/read/<int:notification_id>/', views.mark_notification_as_read, name='mark_notification_as_read'),
 ]

@@ -1,28 +1,28 @@
 from django.shortcuts import render
-from django.contrib import messages
-from .forms import UserRegistrationForm
-from .models import Story, Heart
-from django.db.models import Count
+from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
-from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from .forms import StoryComment
+from django.contrib import messages
+from django.db.models import Count
+from django.http import JsonResponse
 from django.contrib.auth.models import User
-from .forms import StoryCommentForm
-from .models import PlantCareGuide, HeartGuide, Comment, SavedGuide
 from django.db.models import Exists, OuterRef
-from .forms import ProfileUpdateForm, UserUpdateForm
 from django.db import transaction
+from .models import PlantCareGuide, HeartGuide, Comment, SavedGuide
+from .models import Story, Heart
 from .models import Profile
-from django.urls import reverse
+from .models import Notification
+from .forms import ProfileUpdateForm, UserUpdateForm
+from .forms import StoryCommentForm
+from .forms import StoryComment
+from .forms import UserRegistrationForm
+
 
 
 @login_required
 def edit_profile(request):
     user = request.user
-
-    # Ensure the user has a profile
     profile, created = Profile.objects.get_or_create(user=user)
 
     if request.method == "POST":
@@ -30,11 +30,11 @@ def edit_profile(request):
         profile_form = ProfileUpdateForm(request.POST, request.FILES, instance=profile)
 
         if user_form.is_valid() and profile_form.is_valid():
-            with transaction.atomic():  # Ensure atomic save
+            with transaction.atomic(): 
                 user_form.save()
                 profile_form.save()
             messages.success(request, "Your profile was successfully updated!")
-            return redirect("dashboard")  # Redirect to the dashboard or any page
+            return redirect("dashboard") 
 
     else:
         user_form = UserUpdateForm(instance=user)
@@ -47,9 +47,6 @@ def edit_profile(request):
 
 @login_required
 def profile(request):
-    """
-    View to display the user's profile information.
-    """
     user_profile = Profile.objects.get(user=request.user)
     return render(request, 'accounts/profile.html', {'profile': user_profile})
 
@@ -64,15 +61,11 @@ def register(request):
         if form.is_valid():
             user = form.save()
 
-            # Check if the user already has a profile
             if not hasattr(user, 'profile'):
-                # Create a profile if it doesn't exist
                 Profile.objects.create(user=user)
 
-            # Redirect to a success page or login
-            return redirect('login')  # Redirect to the login page, or another page you prefer
+            return redirect('login')
         else:
-            # Handle form errors
             pass
 
     else:
@@ -87,15 +80,12 @@ def landing_page(request):
 def dashboard(request):
     user = request.user
 
-    # Aggregate data
     total_guides = PlantCareGuide.objects.filter(user=user).count()
     total_drafts = PlantCareGuide.objects.filter(user=user, is_draft=True).count()
     total_hearts = HeartGuide.objects.filter(guide__user=user).count()
 
-    # Recent guides - you can filter this by category if you want to display only specific categories
     recent_guides = PlantCareGuide.objects.filter(user=user).order_by('-created_at')[:5]
 
-    # Add the counts per category
     total_plant_care_guides = PlantCareGuide.objects.filter(user=user, category="Plant Care Guides").count()
     total_gardening_tips = PlantCareGuide.objects.filter(user=user, category="Gardening Tips").count()
     total_design_inspirations = PlantCareGuide.objects.filter(user=user, category="Design Inspirations").count()
@@ -116,7 +106,6 @@ def dashboard(request):
 
 
 def plant_care_guides(request):
-    # Get the category from the query parameter
     category = request.GET.get('category', None)
     
     guides = PlantCareGuide.objects.filter(is_draft=False)
@@ -133,7 +122,6 @@ def plant_care_guides(request):
 
 @login_required
 def uploaded_plant_care_guides(request):
-    # Fetch guides with category = "Plant Care Guides" and precomputed heart counts
     guides = PlantCareGuide.objects.filter(user=request.user, category="Plant Care Guides").annotate(hearts_count=Count('hearts'))
     return render(request, "uploaded/index.html", {"guides": guides})
 
@@ -145,13 +133,11 @@ def uploaded_gardening_tips(request):
 
 @login_required
 def uploaded_design_inspirations(request):
-    # Fetch guides with category = "Design Inspirations" and precomputed heart counts
     guides = PlantCareGuide.objects.filter(user=request.user, category="Design Inspirations").annotate(hearts_count=Count('hearts'))
     return render(request, "uploaded/index.html", {"guides": guides})
 
 @login_required
 def uploaded_qa(request):
-    # Fetch guides with category = "Design Inspirations" and precomputed heart counts
     guides = PlantCareGuide.objects.filter(user=request.user, category="Plant QA").annotate(hearts_count=Count('hearts'))
     return render(request, "uploaded/index.html", {"guides": guides})
 
@@ -160,23 +146,20 @@ def update_draft(request, draft_id):
     draft = get_object_or_404(PlantCareGuide, id=draft_id, user=request.user, is_draft=True)
 
     if request.method == "POST":
-        # Update the fields based on form data
         draft.title = request.POST.get("title")
         draft.description = request.POST.get("description")
         draft.author_name = request.POST.get("author_name")
         draft.category = request.POST.get("category")
         draft.is_draft = False
         
-        # Handle author image upload
         if "author_image" in request.FILES:
             draft.author_image = request.FILES["author_image"]
         
         draft.save()
 
-        # Redirect based on action
         if not draft.is_draft:
-            return redirect("plant_care_guides")  # Redirect to guides page
-        return redirect("drafts")  # Redirect to drafts page
+            return redirect("plant_care_guides") 
+        return redirect("drafts") 
 
     return render(request, "plantCareGuides/update_draft.html", {"draft": draft})
 
@@ -191,7 +174,6 @@ def add_plant_guide(request):
         category = request.POST.get('category')
         is_draft = request.POST.get('is_draft') == 'True'
 
-        # Create the guide
         guide = PlantCareGuide.objects.create(
             title=title,
             description=description,
@@ -202,7 +184,6 @@ def add_plant_guide(request):
             is_draft=is_draft
         )
 
-        # Redirect back to the category index
         return redirect(f"{reverse('plant_care_guides')}?category={category}")
 
     return redirect(f"{reverse('plant_care_guides')}?category={category}")
@@ -218,17 +199,24 @@ def guide_detail(request, guide_id):
     guide = get_object_or_404(PlantCareGuide, id=guide_id)
     comments = guide.comments.all()
 
-    # Check if the user has liked the guide
     user_has_liked = guide.hearts.filter(user=request.user).exists()
 
     if request.method == "POST":
         content = request.POST.get('content')
         if content:
-            Comment.objects.create(
+            comment = Comment.objects.create(
                 guide=guide,
                 user=request.user,
                 content=content
             )
+
+            if comment.user != guide.user:
+                Notification.objects.create(
+                    user=guide.user,
+                    message=f"{comment.user.username} commented on your guide: {guide.title}",
+                    link=f"/accounts/view/{guide.id}/",
+                )
+
             messages.success(request, "Your comment has been added!")
             return redirect('guide_detail', guide_id=guide.id)
 
@@ -247,7 +235,6 @@ def toggle_heart_guide(request, guide_id):
     if not created:
         heart.delete()
 
-    # Redirect back to the index page
     return redirect('plant_care_guides')
 
 @login_required
@@ -258,8 +245,7 @@ def toggle_save_guide(request, guide_id):
     if not created:
         saved_guide.delete()
 
-    return redirect('plant_care_guides')  # Redirect to the guides list or to the saved guides page
-
+    return redirect('plant_care_guides') 
 @login_required
 def saved_guides(request):
     saved_guides = SavedGuide.objects.filter(user=request.user)
@@ -270,13 +256,12 @@ def saved_guides(request):
 def stories(request):
     stories = Story.objects.all()
 
-    # Add `user_has_liked` attribute for each story
-    if request.user.is_authenticated:  # Ensure the user is logged in
+    if request.user.is_authenticated: 
         for story in stories:
             story.user_has_liked = story.hearts.filter(user=request.user).exists()
     else:
         for story in stories:
-            story.user_has_liked = False  # Not logged-in users cannot like
+            story.user_has_liked = False 
 
     return render(request, 'stories/index.html', {'stories': stories})
 
@@ -290,9 +275,8 @@ def add_story(request):
 
 @login_required
 def uploaded_stories(request):
-    # Fetch all stories uploaded by the logged-in user (using 'author' to filter)
     stories = Story.objects.filter(author=request.user)
-    print(stories)  # Check if the correct stories are being fetched
+    print(stories) 
     return render(request, "uploaded/stories/index.html", {"stories": stories})
 
   
@@ -300,16 +284,15 @@ def uploaded_stories(request):
 def toggle_heart(request, story_id):
     story = get_object_or_404(Story, id=story_id)
 
-    # Check if the user has already liked the story
     heart, created = Heart.objects.get_or_create(user=request.user, story=story)
     if not created:
-        heart.delete()  # Remove the like if it already exists
+        heart.delete() 
 
     return redirect('stories')
 
 def view_story(request, story_id):
     story = get_object_or_404(Story, id=story_id)
-    comments = story.comments.all()  # Use the related_name 'comments'
+    comments = story.comments.all() 
 
     return render(request, 'stories/view.html', {
         'story': story,
@@ -322,14 +305,37 @@ def add_comment(request, story_id):
     if request.method == 'POST':
         form = StoryCommentForm(request.POST)
         if form.is_valid():
-            # Create the comment and associate it with the user and story
             StoryComment.objects.create(
                 story=story,
                 user=request.user,
                 content=form.cleaned_data['content']
             )
-            return redirect('view_story', story_id=story.id)  # Redirect to the story detail page
+            return redirect('view_story', story_id=story.id)
     else:
         form = StoryCommentForm()
 
     return render(request, 'story/view_story.html', {'story': story, 'form': form})
+
+def send_comment_notification(comment):
+    guide_owner = comment.guide.user
+    notification_message = f"{comment.user.username} commented says: {comment.guide.title}"
+    Notification.objects.create(
+        user=guide_owner,
+        message=notification_message,
+        link=f"/accounts/view/{comment.guide.id}/",
+    )
+
+@login_required
+def notifications(request):
+    notifications = request.user.notifications.all().order_by('-created_at')
+    return render(request, 'notifications/index.html', {'notifications': notifications})
+
+
+@login_required
+def mark_notification_as_read(request, notification_id):
+    if request.method == "POST":
+        notification = get_object_or_404(Notification, pk=notification_id, user=request.user)
+        notification.is_read = True
+        notification.save()
+        return redirect('notifications') 
+    return redirect('notifications') 
