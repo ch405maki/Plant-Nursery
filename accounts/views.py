@@ -328,7 +328,11 @@ def send_comment_notification(comment):
 @login_required
 def notifications(request):
     notifications = request.user.notifications.all().order_by('-created_at')
-    return render(request, 'notifications/index.html', {'notifications': notifications})
+    unread_notifications_count = request.user.notifications.filter(is_read=False).count()
+    return render(request, 'notifications/index.html', {
+        'notifications': notifications,
+        'unread_notifications_count': unread_notifications_count,
+    })
 
 
 @login_required
@@ -339,3 +343,4 @@ def mark_notification_as_read(request, notification_id):
         notification.save()
         return redirect('notifications') 
     return redirect('notifications') 
+
