@@ -15,6 +15,7 @@ from django.db.models import Exists, OuterRef
 from .forms import ProfileUpdateForm, UserUpdateForm
 from django.db import transaction
 from .models import Profile
+from django.urls import reverse
 
 
 @login_required
@@ -84,28 +85,78 @@ def landing_page(request):
 
 @login_required
 def dashboard(request):
-    return render(request, 'dashboard/index.html')
+    user = request.user
+
+    # Aggregate data
+    total_guides = PlantCareGuide.objects.filter(user=user).count()
+    total_drafts = PlantCareGuide.objects.filter(user=user, is_draft=True).count()
+    total_hearts = HeartGuide.objects.filter(guide__user=user).count()
+
+    # Recent guides - you can filter this by category if you want to display only specific categories
+    recent_guides = PlantCareGuide.objects.filter(user=user).order_by('-created_at')[:5]
+
+    # Add the counts per category
+    total_plant_care_guides = PlantCareGuide.objects.filter(user=user, category="Plant Care Guides").count()
+    total_gardening_tips = PlantCareGuide.objects.filter(user=user, category="Gardening Tips").count()
+    total_design_inspirations = PlantCareGuide.objects.filter(user=user, category="Design Inspirations").count()
+    total_qa_guides = PlantCareGuide.objects.filter(user=user, category="Plant Q&A").count()
+
+    context = {
+        'total_guides': total_guides,
+        'total_drafts': total_drafts,
+        'total_hearts': total_hearts,
+        'recent_guides': recent_guides,
+        'total_plant_care_guides': total_plant_care_guides,
+        'total_gardening_tips': total_gardening_tips,
+        'total_design_inspirations': total_design_inspirations,
+        'total_qa_guides': total_qa_guides,
+    }
+
+    return render(request, 'dashboard/index.html', context)
+
 
 def plant_care_guides(request):
-    """
-    View for displaying all plant care guides, excluding drafts and including
-    whether the logged-in user has liked each guide.
-    """
-    # Filter out drafts by ensuring only guides where is_draft is False are shown
+    # Get the category from the query parameter
+    category = request.GET.get('category', None)
+    
     guides = PlantCareGuide.objects.filter(is_draft=False)
 
+    if category:
+        guides = guides.filter(category=category)
+
     if request.user.is_authenticated:
-        # Annotate whether the current user has liked each guide
         user_hearts = HeartGuide.objects.filter(guide=OuterRef('pk'), user=request.user)
         guides = guides.annotate(user_has_liked=Exists(user_hearts))
 
-    return render(request, 'plantCareGuides/index.html', {'guides': guides})
+    return render(request, 'plantCareGuides/index.html', {'guides': guides, 'category': category})
+
+
+@login_required
+def uploaded_plant_care_guides(request):
+    # Fetch guides with category = "Plant Care Guides" and precomputed heart counts
+    guides = PlantCareGuide.objects.filter(user=request.user, category="Plant Care Guides").annotate(hearts_count=Count('hearts'))
+    return render(request, "uploaded/index.html", {"guides": guides})
+
+@login_required
+def uploaded_gardening_tips(request):
+    # Fetch guides with category = "Gardening Tips" and precomputed heart counts
+    guides = PlantCareGuide.objects.filter(user=request.user, category="Gardening Tips").annotate(hearts_count=Count('hearts'))
+    return render(request, "uploaded/index.html", {"guides": guides})
+
+@login_required
+def uploaded_design_inspirations(request):
+    # Fetch guides with category = "Design Inspirations" and precomputed heart counts
+    guides = PlantCareGuide.objects.filter(user=request.user, category="Design Inspirations").annotate(hearts_count=Count('hearts'))
+    return render(request, "uploaded/index.html", {"guides": guides})
+
+@login_required
+def uploaded_qa(request):
+    # Fetch guides with category = "Design Inspirations" and precomputed heart counts
+    guides = PlantCareGuide.objects.filter(user=request.user, category="Plant QA").annotate(hearts_count=Count('hearts'))
+    return render(request, "uploaded/index.html", {"guides": guides})
 
 @login_required
 def update_draft(request, draft_id):
-    """
-    View to update a saved draft and optionally publish it as a guide.
-    """
     draft = get_object_or_404(PlantCareGuide, id=draft_id, user=request.user, is_draft=True)
 
     if request.method == "POST":
@@ -132,18 +183,15 @@ def update_draft(request, draft_id):
 
 @login_required
 def add_plant_guide(request):
-    """
-    View to handle adding a new plant care guide. Includes functionality for saving drafts.
-    """
     if request.method == 'POST':
         title = request.POST.get('title')
         description = request.POST.get('description')
         author_name = request.POST.get('author_name')
         author_image = request.FILES.get('author_image')
         category = request.POST.get('category')
-        is_draft = request.POST.get('is_draft') == 'True'  # Get the draft status
+        is_draft = request.POST.get('is_draft') == 'True'
 
-        # Save the guide to the database
+        # Create the guide
         guide = PlantCareGuide.objects.create(
             title=title,
             description=description,
@@ -154,26 +202,19 @@ def add_plant_guide(request):
             is_draft=is_draft
         )
 
-        # Redirect to a page after saving the guide (could be saved drafts page or success page)
-        return redirect('plant_care_guides')
+        # Redirect back to the category index
+        return redirect(f"{reverse('plant_care_guides')}?category={category}")
 
-    return render(request, 'add_plant_guide.html')
+    return redirect(f"{reverse('plant_care_guides')}?category={category}")
 
 @login_required
 def saved_drafts(request):
-    """
-    View to show all drafts for the logged-in user.
-    """
     drafts = PlantCareGuide.objects.filter(user=request.user, is_draft=True)
     return render(request, 'plantCareGuides/drafts.html', {'drafts': drafts})
 
 
 @login_required
 def guide_detail(request, guide_id):
-    """
-    View for displaying a single guide and its comments.
-    Allows posting new comments.
-    """
     guide = get_object_or_404(PlantCareGuide, id=guide_id)
     comments = guide.comments.all()
 
@@ -200,9 +241,6 @@ def guide_detail(request, guide_id):
 
 @login_required
 def toggle_heart_guide(request, guide_id):
-    """
-    View to toggle (add/remove) a heart for a guide by the logged-in user.
-    """
     guide = get_object_or_404(PlantCareGuide, id=guide_id)
     heart, created = HeartGuide.objects.get_or_create(guide=guide, user=request.user)
 
@@ -214,9 +252,6 @@ def toggle_heart_guide(request, guide_id):
 
 @login_required
 def toggle_save_guide(request, guide_id):
-    """
-    View to toggle (add/remove) a saved guide for the logged-in user.
-    """
     guide = get_object_or_404(PlantCareGuide, id=guide_id)
     saved_guide, created = SavedGuide.objects.get_or_create(guide=guide, user=request.user)
 
@@ -227,9 +262,6 @@ def toggle_save_guide(request, guide_id):
 
 @login_required
 def saved_guides(request):
-    """
-    View to show all saved guides for the logged-in user.
-    """
     saved_guides = SavedGuide.objects.filter(user=request.user)
     return render(request, 'plantCareGuides/saved.html', {'saved_guides': saved_guides})
 
@@ -255,7 +287,15 @@ def add_story(request):
         image = request.FILES.get('image')
         Story.objects.create(author=request.user, title=title, content=content, image=image)
         return redirect('stories')
-    
+
+@login_required
+def uploaded_stories(request):
+    # Fetch all stories uploaded by the logged-in user (using 'author' to filter)
+    stories = Story.objects.filter(author=request.user)
+    print(stories)  # Check if the correct stories are being fetched
+    return render(request, "uploaded/stories/index.html", {"stories": stories})
+
+  
 @login_required
 def toggle_heart(request, story_id):
     story = get_object_or_404(Story, id=story_id)

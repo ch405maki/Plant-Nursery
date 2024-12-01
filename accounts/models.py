@@ -9,7 +9,7 @@ class PlantCareGuide(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     category = models.CharField(max_length=100, default='Uncategorized')
-    is_draft = models.BooleanField(default=True)
+    is_draft = models.BooleanField(default=False)
 
     def __str__(self):
         return self.title

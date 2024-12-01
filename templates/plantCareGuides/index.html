@@ -8,7 +8,7 @@
 <main class="p-4">
     <header class="flex justify-between items-center mb-6 px-8">
         <div class="text-left">
-            <h1 class="text-3xl font-bold text-darkest">Plant Care Guides</h1>
+            <h1 class="text-3xl font-bold text-darkest">{{ category|default:"All Guides" }}</h1>
             <p class="text-slate-600">Your ultimate resource for keeping your plants healthy and thriving.</p>
         </div>
         <!-- Button to Open Modal -->
@@ -17,7 +17,7 @@
                 <svg class="w-6 h-6 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 17h6m-3 3v-6M4.857 4h4.286c.473 0 .857.384.857.857v4.286a.857.857 0 0 1-.857.857H4.857A.857.857 0 0 1 4 9.143V4.857C4 4.384 4.384 4 4.857 4Zm10 0h4.286c.473 0 .857.384.857.857v4.286a.857.857 0 0 1-.857.857h-4.286A.857.857 0 0 1 14 9.143V4.857c0-.473.384-.857.857-.857Zm-10 10h4.286c.473 0 .857.384.857.857v4.286a.857.857 0 0 1-.857.857H4.857A.857.857 0 0 1 4 19.143v-4.286c0-.473.384-.857.857-.857Z"/>
                 </svg>
-                <span>Add New Guide</span>
+                <span>Add New</span>
             </button>
         </div>
     </header>
@@ -28,13 +28,20 @@
         <div class="bg-white rounded-lg shadow-lg overflow-hidden max-w-xs w-full mb-6 mt-4 mx-4">
             <div class="p-4">
                 <div class="flex justify-between items-center">
-                    <!-- Author's image -->
+                    <!-- Author's profile picture and username -->
                     <div class="flex items-center">
-                        <img src="{{ guide.author_image.url }}" alt="{{ guide.author_name }}" class="w-8 h-8 rounded-full">
-                        <span class="text-gray-800 font-semibold ml-2">{{ guide.author_name }}</span>
+                        <!-- Profile picture -->
+                        <img src="{{ guide.user.profile.profile_picture.url|default:'path/to/default.jpg' }}" 
+                            alt="{{ guide.user.username }}" 
+                            class="w-8 h-8 rounded-full object-cover">
+                             
+                        <!-- Username -->
+                        <span class="text-gray-800 font-semibold ml-2">{{ guide.user.username }}</span>
                     </div>
+                    <!-- Date -->
                     <span class="text-gray-600">{{ guide.created_at|date:"F j, Y" }}</span>
                 </div>
+                
             </div>
             <!-- Guide's image -->
             <img src="{{ guide.author_image.url }}" alt="{{ guide.author_name }}" class="w-full h-64 object-cover">
@@ -81,7 +88,7 @@
             </div>
         </div>
         {% empty %}
-            <p class="text-gray-700">No guides available.</p>
+            <p class="text-gray-700">No data available.</p>
         {% endfor %}
     </div>
     
@@ -89,7 +96,7 @@
 <div id="formModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
     <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
         <header class="flex justify-between items-center border-b pb-3 mb-4">
-            <h2 class="text-xl font-bold text-darkest">Add New Guide</h2>
+            <h2 class="text-xl font-bold text-darkest">Add New</h2>
             <button id="closeModalBtn" class="text-gray-500 hover:text-gray-700">
                 &times;
             </button>
@@ -123,13 +130,17 @@
         
             <div class="mb-4">
                 <label for="category" class="block text-sm font-medium text-gray-700">Category</label>
-                <select id="category" name="category" required
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                    <option value="Plant Care Guides" selected>Plant Care Guides</option>
-                    <option value="Gardening Tips">Gardening Tips</option>
-                    <option value="Design Inspirations">Design Inspirations</option>
+                <select id="category" name="category" required disabled
+                        class="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 text-gray-500 shadow-sm sm:text-sm">
+                    <option value="Plant Care Guides" {% if category == "Plant Care Guides" %}selected{% endif %}>Plant Care Guides</option>
+                    <option value="Gardening Tips" {% if category == "Gardening Tips" %}selected{% endif %}>Gardening Tips</option>
+                    <option value="Design Inspirations" {% if category == "Design Inspirations" %}selected{% endif %}>Design Inspirations</option>
+                    <option value="Plant QA" {% if category == "Plant QA" %}selected{% endif %}>Plant Q&A</option>
                 </select>
+                <!-- Hidden input to submit the category -->
+                <input type="hidden" name="category" value="{{ category }}">
             </div>
+            
         
             <!-- Hidden field to distinguish between Draft and Submit -->
             <input type="hidden" id="is_draft" name="is_draft" value="True">

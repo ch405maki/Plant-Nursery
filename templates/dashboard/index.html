@@ -3,128 +3,49 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
+<div class="container mx-auto py-8 px-14">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">Welcome, {{ request.user.username }}!</h1>
 
-<div class="p-1 flex flex-wrap items-center justify-center">
-    <div class="flex-shrink-0 m-6 relative overflow-hidden bg-light rounded-lg max-w-xs shadow-lg group">
-        <svg class="absolute bottom-0 left-0 mb-8 scale-150 group-hover:scale-[1.65] transition-transform" viewBox="0 0 375 283" fill="none"
-            style="opacity: 0.1;">
-            <rect x="159.52" y="175" width="152" height="152" rx="8" transform="rotate(-45 159.52 175)" fill="white" />
-            <rect y="107.48" width="152" height="152" rx="8" transform="rotate(-45 0 107.48)" fill="white" />
-        </svg>
-        <div class="relative pt-10 px-10 flex items-center justify-center group-hover:scale-110 transition-transform">
-            <div class="block absolute w-48 h-48 bottom-0 left-0 -mb-24 ml-3"
-                style="background: radial-gradient(black, transparent 60%); transform: rotate3d(0, 0, 1, 20deg) scale3d(1, 0.6, 1); opacity: 0.2;">
-            </div>
-            <img class="relative w-40" src="https://user-images.githubusercontent.com/2805249/64069899-8bdaa180-cc97-11e9-9b19-1a9e1a254c18.png" alt="">
+    <!-- Overview Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white shadow-lg rounded-lg p-6">
+            <h2 class="text-xl font-bold text-gray-800">Total Uploaded</h2>
+            <p class="text-3xl font-semibold text-green-600">{{ total_guides }}</p>
         </div>
-        <div class="relative text-teal-500 px-6 pb-6 mt-6 ">
-            <div class="flex justify-between pt-4 text-white">
-                <span class="block font-semibold text-xl">Peace Lily</span>
-                <span class="block text-teal-500 text-xs font-bold px-3 leading-none flex items-center">
-                    <svg class="w-8 h-8 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m17 21-5-4-5 4V3.889a.92.92 0 0 1 .244-.629.808.808 0 0 1 .59-.26h8.333a.81.81 0 0 1 .589.26.92.92 0 0 1 .244.63V21Z"/>
-                    </svg>
-                </span>
-            </div>
+        <div class="bg-white shadow-lg rounded-lg p-6">
+            <h2 class="text-xl font-bold text-gray-800">Total Hearts</h2>
+            <p class="text-3xl font-semibold text-red-600">{{ total_hearts }}</p>
+        </div>
+        <div class="bg-white shadow-lg rounded-lg p-6">
+            <h2 class="text-xl font-bold text-gray-800">Drafts</h2>
+            <p class="text-3xl font-semibold text-yellow-600">{{ total_drafts }}</p>
         </div>
     </div>
 
-    <div class="flex-shrink-0 m-6 relative overflow-hidden bg-light rounded-lg max-w-xs shadow-lg group">
-        <svg class="absolute bottom-0 left-0 mb-8 scale-150 group-hover:scale-[1.65] transition-transform" viewBox="0 0 375 283" fill="none"
-            style="opacity: 0.1;">
-            <rect x="159.52" y="175" width="152" height="152" rx="8" transform="rotate(-45 159.52 175)" fill="white" />
-            <rect y="107.48" width="152" height="152" rx="8" transform="rotate(-45 0 107.48)" fill="white" />
-        </svg>
-        <div class="relative pt-10 px-10 flex items-center justify-center group-hover:scale-110 transition-transform">
-            <div class="block absolute w-48 h-48 bottom-0 left-0 -mb-24 ml-3"
-                style="background: radial-gradient(black, transparent 60%); transform: rotate3d(0, 0, 1, 20deg) scale3d(1, 0.6, 1); opacity: 0.2;">
-            </div>
-            <img class="relative w-40" src="https://user-images.githubusercontent.com/2805249/64069998-305de300-cc9a-11e9-8ae7-5a0fe00299f2.png" alt="">
+    <!-- Recent Activity -->
+    <div class="bg-white shadow-lg rounded-lg p-6 mb-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">Recent Activity</h2>
+        {% for guide in recent_guides %}
+        <div class="border-b border-gray-200 py-4">
+            <h3 class="text-lg font-semibold text-gray-800">{{ guide.title }}</h3>
+            <p class="text-sm text-gray-600">Uploaded on {{ guide.created_at|date:"F j, Y" }}</p>
         </div>
-        <div class="relative text-teal-500 px-6 pb-6 mt-6 ">
-            <div class="flex justify-between pt-4 text-white">
-                <span class="block font-semibold text-xl">Monstera</span>
-                <span class="block text-teal-500 text-xs font-bold px-3 leading-none flex items-center">
-                    <svg class="w-8 h-8 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m17 21-5-4-5 4V3.889a.92.92 0 0 1 .244-.629.808.808 0 0 1 .59-.26h8.333a.81.81 0 0 1 .589.26.92.92 0 0 1 .244.63V21Z"/>
-                    </svg>
-                </span>
-            </div>
-        </div>
+        {% empty %}
+        <p class="text-gray-600">No recent activity yet.</p>
+        {% endfor %}
     </div>
-    
-    <div class="flex-shrink-0 m-6 relative overflow-hidden bg-light rounded-lg max-w-xs shadow-lg group">
-        <svg class="absolute bottom-0 left-0 mb-8 scale-150 group-hover:scale-[1.65] transition-transform" viewBox="0 0 375 283" fill="none"
-            style="opacity: 0.1;">
-            <rect x="159.52" y="175" width="152" height="152" rx="8" transform="rotate(-45 159.52 175)" fill="white" />
-            <rect y="107.48" width="152" height="152" rx="8" transform="rotate(-45 0 107.48)" fill="white" />
-        </svg>
-        <div class="relative pt-10 px-10 flex items-center justify-center group-hover:scale-110 transition-transform">
-            <div class="block absolute w-48 h-48 bottom-0 left-0 -mb-24 ml-3"
-                style="background: radial-gradient(black, transparent 60%); transform: rotate3d(0, 0, 1, 20deg) scale3d(1, 0.6, 1); opacity: 0.2;">
-            </div>
-            <img class="relative w-40" src="https://user-images.githubusercontent.com/2805249/64069899-8bdaa180-cc97-11e9-9b19-1a9e1a254c18.png" alt="">
-        </div>
-        <div class="relative text-teal-500 px-6 pb-6 mt-6 ">
-            <div class="flex justify-between pt-4 text-white">
-                <span class="block font-semibold text-xl">Peace Lily</span>
-                <span class="block text-teal-500 text-xs font-bold px-3 leading-none flex items-center">
-                    <svg class="w-8 h-8 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m17 21-5-4-5 4V3.889a.92.92 0 0 1 .244-.629.808.808 0 0 1 .59-.26h8.333a.81.81 0 0 1 .589.26.92.92 0 0 1 .244.63V21Z"/>
-                    </svg>
-                </span>
-            </div>
-        </div>
-    </div>
-    <div class="flex-shrink-0 m-6 relative overflow-hidden bg-light rounded-lg max-w-xs shadow-lg group">
-        <svg class="absolute bottom-0 left-0 mb-8 scale-150 group-hover:scale-[1.65] transition-transform" viewBox="0 0 375 283" fill="none"
-            style="opacity: 0.1;">
-            <rect x="159.52" y="175" width="152" height="152" rx="8" transform="rotate(-45 159.52 175)" fill="white" />
-            <rect y="107.48" width="152" height="152" rx="8" transform="rotate(-45 0 107.48)" fill="white" />
-        </svg>
-        <div class="relative pt-10 px-10 flex items-center justify-center group-hover:scale-110 transition-transform">
-            <div class="block absolute w-48 h-48 bottom-0 left-0 -mb-24 ml-3"
-                style="background: radial-gradient(black, transparent 60%); transform: rotate3d(0, 0, 1, 20deg) scale3d(1, 0.6, 1); opacity: 0.2;">
-            </div>
-            <img class="relative w-40" src="https://user-images.githubusercontent.com/2805249/64069998-305de300-cc9a-11e9-8ae7-5a0fe00299f2.png" alt="">
-        </div>
-        <div class="relative text-teal-500 px-6 pb-6 mt-6 ">
-            <div class="flex justify-between pt-4 text-white">
-                <span class="block font-semibold text-xl">Monstera</span>
-                <span class="block text-teal-500 text-xs font-bold px-3 leading-none flex items-center">
-                    <svg class="w-8 h-8 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m17 21-5-4-5 4V3.889a.92.92 0 0 1 .244-.629.808.808 0 0 1 .59-.26h8.333a.81.81 0 0 1 .589.26.92.92 0 0 1 .244.63V21Z"/>
-                    </svg>
-                </span>
-            </div>
-        </div>
-    </div>
-    
-    <div class="flex-shrink-0 m-6 relative overflow-hidden bg-light rounded-lg max-w-xs shadow-lg group">
-        <svg class="absolute bottom-0 left-0 mb-8 scale-150 group-hover:scale-[1.65] transition-transform" viewBox="0 0 375 283" fill="none"
-            style="opacity: 0.1;">
-            <rect x="159.52" y="175" width="152" height="152" rx="8" transform="rotate(-45 159.52 175)" fill="white" />
-            <rect y="107.48" width="152" height="152" rx="8" transform="rotate(-45 0 107.48)" fill="white" />
-        </svg>
-        <div class="relative pt-10 px-10 flex items-center justify-center group-hover:scale-110 transition-transform">
-            <div class="block absolute w-48 h-48 bottom-0 left-0 -mb-24 ml-3"
-                style="background: radial-gradient(black, transparent 60%); transform: rotate3d(0, 0, 1, 20deg) scale3d(1, 0.6, 1); opacity: 0.2;">
-            </div>
-            <img class="relative w-40" src="https://user-images.githubusercontent.com/2805249/64069899-8bdaa180-cc97-11e9-9b19-1a9e1a254c18.png" alt="">
-        </div>
-        <div class="relative text-teal-500 px-6 pb-6 mt-6 ">
-            <div class="flex justify-between pt-4 text-white">
-                <span class="block font-semibold text-xl">Peace Lily</span>
-                <span class="block text-teal-500 text-xs font-bold px-3 leading-none flex items-center">
-                    <svg class="w-8 h-8 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m17 21-5-4-5 4V3.889a.92.92 0 0 1 .244-.629.808.808 0 0 1 .59-.26h8.333a.81.81 0 0 1 .589.26.92.92 0 0 1 .244.63V21Z"/>
-                    </svg>
-                </span>
-            </div>
-        </div>
+
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <a href="{% url 'add_plant_guide' %}" class="bg-green-600 text-white rounded-lg p-6 shadow-lg hover:bg-green-700 transition">
+            Add New data
+        </a>
+        <a href="{% url 'drafts' %}" class="bg-yellow-600 text-white rounded-lg p-6 shadow-lg hover:bg-yellow-700 transition">
+            Manage Drafts
+        </a>
+        <a href="{% url 'stories' %}" class="bg-gray-600 text-white rounded-lg p-6 shadow-lg hover:bg-gray-700 transition">
+            Explore Stories
+        </a>
     </div>
 </div>
-
 {% endblock %}
-
-
