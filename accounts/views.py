@@ -76,6 +76,12 @@ def register(request):
 def landing_page(request):
     return render(request, 'landingPage/index.html')
 
+def about(request):
+    return render(request, 'about/index.html')
+
+def contact(request):
+    return render(request, 'contact/index.html')
+
 @login_required
 def dashboard(request):
     user = request.user

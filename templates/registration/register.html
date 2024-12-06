@@ -76,6 +76,9 @@
                     <div class="mb-4">
                         <label for="id_password1" class="block text-sm font-medium text-gray-700">Password</label>
                         {{ form.password1 }}
+                        <p class="text-xs text-gray-700 mt-1">
+                            <span class="text-red-600">*</span> Password must be at least 8 characters long and include a mix of uppercase letters, lowercase letters, numbers, and symbols.
+                        </p>
                     </div>
                 
                     <!-- Confirm Password -->

@@ -32,6 +32,9 @@ urlpatterns = [
     path('uploaded/qa/', views.uploaded_design_inspirations, name='uploaded_qa'),
     path('uploaded/stories/', views.uploaded_stories, name='uploaded_stories'),
 
+    path('about/', views.about, name='about'),
+    path('contact/', views.contact, name='contact'),
+
     path('notifications/', views.notifications, name='notifications'),
     path('notifications/read/<int:notification_id>/', views.mark_notification_as_read, name='mark_notification_as_read'),
 ]

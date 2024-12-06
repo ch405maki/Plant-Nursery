@@ -1,0 +1,48 @@
+{% extends 'component/authenticatedbase.html' %}
+
+{% block title %}Contact Us{% endblock %}
+{% load static %}
+
+{% block content %}
+<div class="container mx-auto py-8 px-2">
+    <div class="flex flex-wrap justify-center">
+        <div class="w-full sm:w-8/12 mb-10">
+            <div class="container mx-auto h-full sm:p-10 text-center">
+                <nav class="flex justify-center px-4 items-center">
+                    <div class="text-4xl font-bold">
+                        <span class="text-mid">Plant Nursery Blog.</span>
+                    </div>
+                </nav>
+                <header class="container px-4 mt-10">
+                    <div class="w-full">
+                        <h1 class="text-4xl lg:text-6xl font-bold">Contact <span class="text-mid">Us</span></h1>
+                        <p class="text-xl mb-10 mt-10">We’d love to hear from you! Whether you have questions about plants, need gardening tips, or simply want to share your green journey, feel free to reach out to us.</p>
+                    </div>
+                </header>
+                <section class="container px-4 mt-12">
+                    <div class="w-full">
+                        <h2 class="text-3xl font-bold">Meet the <span class="text-mid">Team</span></h2>
+                        <div class="w-20 h-2 bg-mid my-4 mx-auto"></div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-6">
+                            <div class="text-center">
+                                <h3 class="text-xl font-medium">Name 1</h3>
+                                <p class="text-sm text-gray-600">Member</p>
+                            </div>
+                            <div class="text-center">
+                                <h3 class="text-xl font-medium">Name 2</h3>
+                                <p class="text-sm text-gray-600">Member</p>
+                            </div>
+                            <div class="text-center">
+                                <h3 class="text-xl font-medium">Name 3</h3>
+                                <p class="text-sm text-gray-600">Member</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
