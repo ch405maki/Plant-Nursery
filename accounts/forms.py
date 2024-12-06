@@ -25,6 +25,14 @@ class UserRegistrationForm(UserCreationForm):
             "password1",
             "password2",
         ]
+        widgets = {
+            "phone_number": forms.TextInput(
+                attrs={
+                    "placeholder": "0000-000-0000",  # Add your desired placeholder
+                    "class": "form-input block w-full",  # Optional: Add custom classes for styling
+                }
+            ),
+        }
 
 class StoryCommentForm(forms.ModelForm):
     class Meta:
