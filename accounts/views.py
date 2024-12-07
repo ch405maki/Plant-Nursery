@@ -17,6 +17,7 @@ from .forms import ProfileUpdateForm, UserUpdateForm
 from .forms import StoryCommentForm
 from .forms import StoryComment
 from .forms import UserRegistrationForm
+from django.db.models import Q
 
 
 
@@ -113,17 +114,29 @@ def dashboard(request):
 
 def plant_care_guides(request):
     category = request.GET.get('category', None)
-    
+    query = request.GET.get('q', '')  # Get the search query, default to an empty string
+
+    # Start with all published guides
     guides = PlantCareGuide.objects.filter(is_draft=False)
 
+    # Filter by category if provided
     if category:
         guides = guides.filter(category=category)
 
+    # Apply search filter if query is provided
+    if query:
+        guides = guides.filter(
+            Q(title__icontains=query) | 
+            Q(description__icontains=query) |
+            Q(author_name__icontains=query)
+        )
+
+    # Annotate guides with user-specific likes
     if request.user.is_authenticated:
         user_hearts = HeartGuide.objects.filter(guide=OuterRef('pk'), user=request.user)
         guides = guides.annotate(user_has_liked=Exists(user_hearts))
 
-    return render(request, 'plantCareGuides/index.html', {'guides': guides, 'category': category})
+    return render(request, 'plantCareGuides/index.html', {'guides': guides, 'category': category, 'query': query})
 
 
 @login_required
@@ -260,16 +273,24 @@ def saved_guides(request):
 
 @login_required
 def stories(request):
+    query = request.GET.get('q', '')  # Get search query from URL parameters
     stories = Story.objects.all()
 
-    if request.user.is_authenticated: 
+    # Filter stories based on the search query
+    if query:
+        stories = stories.filter(
+            Q(title__icontains=query) | Q(content__icontains=query)
+        )
+
+    # Annotate whether the user has liked each story
+    if request.user.is_authenticated:
         for story in stories:
             story.user_has_liked = story.hearts.filter(user=request.user).exists()
     else:
         for story in stories:
-            story.user_has_liked = False 
+            story.user_has_liked = False
 
-    return render(request, 'stories/index.html', {'stories': stories})
+    return render(request, 'stories/index.html', {'stories': stories, 'query': query})
 
 def add_story(request):
     if request.method == "POST":

@@ -42,7 +42,7 @@
                     <div class="mb-3">
                         <input 
                             type="password" 
-                            name="{{ form.password.name }}" 
+                            name="{{ form.password.name }}"
                             id="id_password" 
                             class="bg-gray-100 border outline-none rounded-md py-3 w-full px-4" 
                             placeholder="Password"
@@ -53,13 +53,22 @@
                     </div>
                     
                     <!-- Submit Button -->
-                    <button type="submit" class="bg-darkest border outline-none rounded-md py-3 w-full px-4 font-semibold text-white">
+                    <button type="submit" class="bg-darkest border outline-none hover:bg-mid rounded-md py-3 w-full px-4 font-semibold text-white">
                         Login
                     </button>
                     
+                    <!-- Forgot Password Button -->
+                    <button 
+                        type="button" 
+                        id="forgotPasswordBtn" 
+                        class="mt-4 block text-center border rounded-md py-3 w-full font-semibold text-darkest hover:bg-gray-100"
+                    >
+                        Forgot Password?
+                    </button>
+                    
                     <!-- Optional Sign-Up Button -->
-                    <a href="/accounts/register/" class="mt-4 block text-center border rounded-md py-3 w-full font-semibold text-darkest hover:bg-gray-100">
-                        Sign Up
+                    <a href="/accounts/register/" class="mt-4 block text-center border rounded-md py-3 w-full font-semibold text-mid hover:bg-gray-100">
+                        Dont have an account? <span class="text-darkest">Sign Up</span>
                     </a>
                     
                     <!-- Form-Level Errors -->
@@ -74,7 +83,36 @@
             </div>
         </div>
     </div>
+    
+    <!-- Forgot Password Modal -->
+    <div id="forgotPasswordModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+            <h2 class="text-xl font-bold mb-4">Forgot Password</h2>
+            <p class="text-gray-700">Please contact your administrator for password recovery assistance.</p>
+            <button 
+                id="closeModalBtn" 
+                class="mt-4 px-4 py-2 bg-darkest text-white rounded-md hover:bg-gray-700"
+            >
+                Close
+            </button>
+        </div>
+    </div>
+    
+    <!-- Modal Script -->
+    <script>
+        const forgotPasswordBtn = document.getElementById('forgotPasswordBtn');
+        const forgotPasswordModal = document.getElementById('forgotPasswordModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+
+        // Show modal when "Forgot Password?" is clicked
+        forgotPasswordBtn.addEventListener('click', () => {
+            forgotPasswordModal.classList.remove('hidden');
+        });
+
+        // Hide modal when "Close" is clicked
+        closeModalBtn.addEventListener('click', () => {
+            forgotPasswordModal.classList.add('hidden');
+        });
+    </script>
 </body>
 </html>
-
-

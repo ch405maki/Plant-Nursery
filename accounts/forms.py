@@ -2,6 +2,8 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from .models import StoryComment, Profile
+from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
 
 
 class UserRegistrationForm(UserCreationForm):
@@ -30,6 +32,17 @@ class UserRegistrationForm(UserCreationForm):
         "class": "form-control",
         "placeholder": "Choose a unique username"
     }))
+    password1 = forms.CharField(
+        label="Password",
+        widget=forms.PasswordInput,
+        help_text="Password must be at least 8 characters long and include a mix of uppercase letters, lowercase letters, numbers, and symbols.",
+        validators=[
+            RegexValidator(
+                regex=r"^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$",
+                message="Password must be at least 8 characters long and include a mix of uppercase letters, lowercase letters, numbers, and symbols.",
+            ),
+        ],
+    )
 
     class Meta:
         model = User
@@ -48,16 +61,17 @@ class UserRegistrationForm(UserCreationForm):
     def clean_password1(self):
         password = self.cleaned_data.get("password1")
         if len(password) < 8:
-            raise forms.ValidationError("Password must be at least 8 characters long.")
+            raise ValidationError("Password must be at least 8 characters long.")
         if not any(char.isupper() for char in password):
-            raise forms.ValidationError("Password must contain at least one uppercase letter.")
+            raise ValidationError("Password must contain at least one uppercase letter.")
         if not any(char.islower() for char in password):
-            raise forms.ValidationError("Password must contain at least one lowercase letter.")
+            raise ValidationError("Password must contain at least one lowercase letter.")
         if not any(char.isdigit() for char in password):
-            raise forms.ValidationError("Password must contain at least one number.")
-        if not any(char in "!@#$%^&*()-_=+[{]}|;:',<.>/?`~" for char in password):
-            raise forms.ValidationError("Password must contain at least one symbol (e.g., !, @, #, etc.).")
+            raise ValidationError("Password must contain at least one number.")
+        if not any(char in "!@#$%^&*()-_+=" for char in password):
+            raise ValidationError("Password must contain at least one special character.")
         return password
+
 
     def clean_username(self):
         username = self.cleaned_data.get("username")
